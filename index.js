@@ -41,6 +41,7 @@ function SMTPServer(options){
 
     this.SMTPServer = new RAIServer({
         timeout: this.options.timeout || 60*1000,
+        disconnectOnTimeout: false,
         debug: !!this.options.debug
     });
     
@@ -98,6 +99,14 @@ function SMTPConnection(server, client){
     this.client.send("220 "+this.server.options.HOSTNAME+" "+(this.server.options.SMTPBanner || "ESMTP node.js simplesmtp"));
 }
 
+/**
+ * <p>Reset the envelope state</p>
+ * 
+ * <p>If <code>keepAuthData</code> is set to true, then doesn't remove
+ * authentication data</p>
+ * 
+ * @param {Boolean} [keepAuthData=false] If set to true keep authentication data
+ */
 SMTPConnection.prototype.init = function(keepAuthData){
     this.envelope = {from: "", to:[], date: new Date()};
     
@@ -110,6 +119,11 @@ SMTPConnection.prototype.init = function(keepAuthData){
     }
 }
 
+/**
+ * <p>Sends a message to the client and closes the connection</p>
+ * 
+ * @param {String} [message] if set, send it to the client before disconnecting
+ */
 SMTPConnection.prototype.end = function(message){
     if(message){
         this.client.send(message);
@@ -117,18 +131,32 @@ SMTPConnection.prototype.end = function(message){
     this.client.end();
 }
 
+/**
+ * <p>Will be called when the connection to the client is closed</p>
+ */
 SMTPConnection.prototype._onEnd = function(){
     console.log("Connection closed to", this.client.remoteAddress);
 }
 
+/**
+ * <p>Will be called when timeout occurs</p>
+ */
 SMTPConnection.prototype._onTimeout = function(){
     this.end("421 4.4.2 "+this.server.options.HOSTNAME+" Error: timeout exceeded");
 }
 
+/**
+ * <p>Will be called when an error occurs</p>
+ */
 SMTPConnection.prototype._onError = function(){
     this.end("421 4.4.2 "+this.server.options.HOSTNAME+" Error: client error");
 }
 
+/**
+ * <p>Will be called when a command is received from the client</p>
+ * 
+ * @param 
+ */
 SMTPConnection.prototype._onCommand = function(command, payload){
 
     if(this.authentication.state == "AUTHENTICATING"){
