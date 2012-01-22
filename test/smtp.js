@@ -147,7 +147,7 @@ exports["General tests"] = {
             test.done();
         });
     }
-}
+};
 
 exports["Require AUTH"] = {
     setUp: function (callback) {
@@ -251,4 +251,4 @@ exports["Require AUTH"] = {
             test.done();
         });
     }
-}
+};
