@@ -26,7 +26,7 @@ SMTP options can include the following:
   * **SMTPBanner** - greeting banner that is sent to the client on connection
   * **requireAuthentication** - if set to true, require that the client must authenticate itself
   * **validateSender** - if set to true, emit `'validateSender'` with `email` and `callback` when the client enters `MAIL FROM:<address>`
-  * **validateRecipients** - if set to true, emit `'validateRecipient'` with `email` and `callback` when the client enters `RCPT TO<address>`
+  * **validateRecipients** - if set to true, emit `'validateRecipient'` with `email` and `callback` when the client enters `RCPT TO:<address>`
   * **maxSize** - maximum size of an e-mail in bytes (currently informational only)
   * **credentials** - TLS credentials (`{key:'', cert:'', ca:''}`) for the server
   
@@ -56,7 +56,7 @@ SMTP options can include the following:
 
 ## Events
 
-  * **startData** *(envelope)* - DATA stream is opened by the client (`envelope` is an object with `from` and `to` properties)
+  * **startData** *(envelope)* - DATA stream is opened by the client (`envelope` is an object with `from`, `to`, `host` and `remoteAddress` properties)
   * **data** *(envelope, chunk)* - e-mail data chunk is passed from the client 
   * **dataReady** *(envelope)* - client is finished passing e-mail data
   * **authorizeUser** *(envelope, username, password, callback)* - will be emitted if `requireAuthentication` option is set to true. `callback` has two parameters *(err, success)* where `success` is Boolean and should be true, if user is authenticated successfully
