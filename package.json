@@ -23,6 +23,9 @@
             "url": "http://github.com/andris9/simplesmtp/blob/master/LICENSE"
         }
     ],
+    "dependencies": {
+        "rai": "*"
+    },
     "devDependencies": {
         "nodeunit": "*"
     },
