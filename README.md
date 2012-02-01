@@ -27,6 +27,7 @@ SMTP options can include the following:
   * **validateRecipients** - if set to true, emit `'validateRecipient'` with `email` and `callback` when the client enters `RCPT TO:<address>`
   * **maxSize** - maximum size of an e-mail in bytes (currently informational only)
   * **credentials** - TLS credentials (`{key:'', cert:'', ca:''}`) for the server
+  * **authMethods** - allowed authentication methods, defaults to `["PLAIN", "LOGIN"]`
   
 ## Example
 
