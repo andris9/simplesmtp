@@ -28,6 +28,7 @@ SMTP options can include the following:
   * **maxSize** - maximum size of an e-mail in bytes (currently informational only)
   * **credentials** - TLS credentials (`{key:'', cert:'', ca:''}`) for the server
   * **authMethods** - allowed authentication methods, defaults to `["PLAIN", "LOGIN"]`
+  * **disableEHLO** - if set to true, support HELO command only
   
 ## Example
 

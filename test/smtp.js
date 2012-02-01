@@ -149,6 +149,36 @@ exports["General tests"] = {
     }
 };
 
+exports["EHLO"] = {
+    setUp: function (callback) {
+        
+        this.smtp = new SMTPServer({
+            disableEHLO: true
+        });
+        this.smtp.listen(PORT_NUMBER, function(err){
+            if(err){
+                throw err;
+            }else{
+                callback();
+            }
+        });
+        
+    },
+    tearDown: function (callback) {
+        this.smtp.end(callback);
+    },
+    "Disable EHLO": function(test){
+        runClientMockup(PORT_NUMBER, "localhost", ["EHLO foo"], function(resp){
+            test.equal("5",resp.toString("utf-8").trim().substr(0,1));
+            runClientMockup(PORT_NUMBER, "localhost", ["HELO foo"], function(resp){
+                test.equal("2",resp.toString("utf-8").trim().substr(0,1));
+                test.done();
+            });
+        });
+        
+    }
+}
+
 exports["Require AUTH"] = {
     setUp: function (callback) {
         
