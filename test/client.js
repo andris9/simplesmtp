@@ -33,7 +33,46 @@ exports["General tests"] = {
         
         client.on("error", function(err){
             test.ok(false);
+        });
+        
+        client.on("end", function(){
             test.done();
+        });
+    }
+}
+
+exports["Secure server"] = {
+    setUp: function (callback) {
+        this.server = new simplesmtp.createServer({
+            secureConnection: true
+        });
+        this.server.listen(PORT_NUMBER, function(err){
+            if(err){
+                throw err;
+            }else{
+                callback();
+            }
+        });
+        
+    },
+    
+    tearDown: function (callback) {
+        this.server.end(callback);
+    },
+    
+    "Connect and setup": function(test){
+        var client = simplesmtp.connect(PORT_NUMBER, false, {
+            secureConnection: true
+        });
+        
+        client.on("idle", function(){
+            // Client is ready to take messages
+            test.ok(true);
+            client.close();
+        });
+        
+        client.on("error", function(err){
+            test.ok(false);
         });
         
         client.on("end", function(){
@@ -70,7 +109,6 @@ exports["Disabled EHLO"] = {
         
         client.on("error", function(err){
             test.ok(false);
-            test.done();
         });
         
         client.on("end", function(){
@@ -149,4 +187,24 @@ exports["Authentication needed"] = {
             test.done();
         });
     }
+}
+
+exports["Message tests"] = {
+    setUp: function (callback) {
+        this.server = new simplesmtp.createServer();
+        this.server.listen(PORT_NUMBER, function(err){
+            if(err){
+                throw err;
+            }else{
+                callback();
+            }
+        });
+        
+    },
+    
+    tearDown: function (callback) {
+        this.server.end(callback);
+    },
+    
+    
 }
