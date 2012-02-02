@@ -1,7 +1,8 @@
 var testCase = require('nodeunit').testCase,
     runClientMockup = require("rai").runClientMockup,
     simplesmtp = require("../index"),
-    netlib = require("net");
+    netlib = require("net"),
+    fs = require("fs");
 
 var PORT_NUMBER = 8397;
 
@@ -180,7 +181,6 @@ exports["Authentication needed"] = {
         
         client.on("error", function(err){
             test.ok(true); // login failed
-            client.close();
         });
         
         client.on("end", function(){
@@ -191,7 +191,24 @@ exports["Authentication needed"] = {
 
 exports["Message tests"] = {
     setUp: function (callback) {
-        this.server = new simplesmtp.createServer();
+        this.server = new simplesmtp.createServer({
+            validateSender: true,
+            validateRecipients: true
+        });
+        
+        this.server.on("validateSender", function(email, callback){
+            callback(email != "test@node.ee"?new Error("Failed sender") : null);
+        });
+        
+        this.server.on("validateRecipient", function(email, callback){
+            callback(email.split("@").pop() != "node.ee"?new Error("Failed recipient") : null);
+        });
+        
+        this.server.on("dataReady", function(envelope, callback){
+            callback(null, "ABC1"); // ABC1 is the queue id to be advertised to the client
+            // callback(new Error("That was clearly a spam!"));
+        });
+        
         this.server.listen(PORT_NUMBER, function(err){
             if(err){
                 throw err;
@@ -206,5 +223,181 @@ exports["Message tests"] = {
         this.server.end(callback);
     },
     
+    "Set envelope success": function(test){
+        test.expect(2);
+        
+        var client = simplesmtp.connect(PORT_NUMBER, false, {});
+        
+        client.on("idle", function(){
+            // Client is ready to take messages
+            test.ok(true); // waiting for envelope
+            
+            client.useEnvelope({
+                from: "test@node.ee",
+                to: [
+                    "test1@node.ee",
+                    "test2@node.ee"
+                ]
+            });
+        });
+        
+        client.on("message", function(){
+            // Client is ready to take messages
+            test.ok(true); // waiting for message
+            client.close();
+        });
+        
+        client.on("error", function(err){
+            test.ok(false);
+        });
+        
+        client.on("end", function(){
+            test.done();
+        });
+    },
+    
+    "Set envelope fails for sender": function(test){
+        test.expect(2);
+        
+        var client = simplesmtp.connect(PORT_NUMBER, false, {});
+        
+        client.on("idle", function(){
+            // Client is ready to take messages
+            test.ok(true); // waiting for envelope
+            
+            client.useEnvelope({
+                from: "test3@node.ee",
+                to: [
+                    "test1@node.ee",
+                    "test2@node.ee"
+                ]
+            });
+        });
+        
+        client.on("message", function(){
+            // Client is ready to take messages
+            test.ok(false); // waiting for message
+            client.close();
+        });
+        
+        client.on("error", function(err){
+            test.ok(true);
+        });
+        
+        client.on("end", function(){
+            test.done();
+        });
+    },
+    
+    "Set envelope fails for receiver": function(test){
+        test.expect(2);
+        
+        var client = simplesmtp.connect(PORT_NUMBER, false, {});
+        
+        client.on("idle", function(){
+            // Client is ready to take messages
+            test.ok(true); // waiting for envelope
+            
+            client.useEnvelope({
+                from: "test@node.ee",
+                to: [
+                    "test1@kreata.ee",
+                    "test2@kreata.ee"
+                ]
+            });
+        });
+        
+        client.on("message", function(){
+            // Client is ready to take messages
+            test.ok(false); // waiting for message
+            client.close();
+        });
+        
+        client.on("error", function(err){
+            test.ok(true);
+        });
+        
+        client.on("end", function(){
+            test.done();
+        });
+    },
+    
+    "Set envelope partly fails": function(test){
+        test.expect(3);
+        
+        var client = simplesmtp.connect(PORT_NUMBER, false, {});
+        
+        client.on("idle", function(){
+            // Client is ready to take messages
+            test.ok(true); // waiting for envelope
+            
+            client.useEnvelope({
+                from: "test@node.ee",
+                to: [
+                    "test1@node.ee",
+                    "test2@kreata.ee"
+                ]
+            });
+        });
+        
+        client.on("rcptFailed", function(){
+            // Client is ready to take messages
+            test.ok(true); // waiting for message
+        });
+        
+        client.on("message", function(){
+            // Client is ready to take messages
+            test.ok(true); // waiting for message
+            client.close();
+        });
+        
+        client.on("error", function(err){
+            test.ok(false);
+        });
+        
+        client.on("end", function(){
+            test.done();
+        });
+    },
+    
+    "Send message success": function(test){
+        test.expect(3);
+        
+        var client = simplesmtp.connect(PORT_NUMBER, false, {});
+        
+        client.on("idle", function(){
+            // Client is ready to take messages
+            test.ok(true); // waiting for envelope
+            
+            client.useEnvelope({
+                from: "test@node.ee",
+                to: [
+                    "test1@node.ee",
+                    "test2@node.ee"
+                ]
+            });
+        });
+        
+        client.on("message", function(){
+            // Client is ready to take messages
+            test.ok(true); // waiting for message
+            
+            client.write("From: abc@example.com\r\nTo:cde@example.com\r\nSubject: test\r\n\r\nHello World!");
+            client.end();
+        });
+        
+        client.on("ready", function(success){
+            test.ok(success);
+            client.close();
+        });
+        
+        client.on("error", function(err){
+            test.ok(false);
+        });
+        
+        client.on("end", function(){
+            test.done();
+        });
+    }
     
 }
