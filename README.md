@@ -150,6 +150,19 @@ parameter which indicates if the message was transmitted( (true) or not (false).
         }
     });
 
+### Error types
+
+On errors
+
+### About reusing the connection
+
+You can reuse the same connection several times but you can't send a mail
+through the same connection concurrently. So if you catch and `'idle'` event
+lock the connection to a message process and unlock after `'ready'`.
+
+On '`error'` events you should reschedule the message and on `'end'` events
+you should recreate the connection.
+
 ### Closing the client
 
 By default the client tries to keep the connection up. If you want to close it,
