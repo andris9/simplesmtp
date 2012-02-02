@@ -1,6 +1,6 @@
 # simplesmtp
 
-This is a module to easily create custom SMTP servers - use SMTP as a first class protocol in Node.JS!
+This is a module to easily create custom SMTP servers and clients - use SMTP as a first class protocol in Node.JS!
 
 [![Build Status](https://secure.travis-ci.org/andris9/simplesmtp.png)](http://travis-ci.org/andris9/simplesmtp)
 
