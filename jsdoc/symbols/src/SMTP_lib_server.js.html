@@ -1,0 +1,641 @@
+<html><head><meta http-equiv="content-type" content="text/html; charset=UTF-8"> <style>
+	.KEYW {color: #933;}
+	.COMM {color: #bbb; font-style: italic;}
+	.NUMB {color: #393;}
+	.STRN {color: #393;}
+	.REGX {color: #339;}
+	.line {border-right: 1px dotted #666; color: #666; font-style: normal;}
+	</style></head><body><pre><span class='line'>  1</span> <span class="COMM">/**
+<span class='line'>  2</span>  * @fileOverview This is the main file for the simplesmtp library to create custom SMTP servers
+<span class='line'>  3</span>  * @author &lt;a href="mailto:andris@node.ee">Andris Reinman&lt;/a>
+<span class='line'>  4</span>  * @version 0.1.2
+<span class='line'>  5</span>  */</span><span class="WHIT">
+<span class='line'>  6</span> 
+<span class='line'>  7</span> </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">RAIServer</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">require</span><span class="PUNC">(</span><span class="STRN">"rai"</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">RAIServer</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>  8</span> </span><span class="WHIT">    </span><span class="NAME">EventEmitter</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">require</span><span class="PUNC">(</span><span class="STRN">'events'</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">EventEmitter</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>  9</span> </span><span class="WHIT">    </span><span class="NAME">oslib</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">require</span><span class="PUNC">(</span><span class="STRN">'os'</span><span class="PUNC">)</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 10</span> </span><span class="WHIT">    </span><span class="NAME">utillib</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">require</span><span class="PUNC">(</span><span class="STRN">"util"</span><span class="PUNC">)</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 11</span> </span><span class="WHIT">    </span><span class="NAME">dnslib</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">require</span><span class="PUNC">(</span><span class="STRN">"dns"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 12</span> 
+<span class='line'> 13</span> </span><span class="COMM">// expose to the world</span><span class="WHIT">
+<span class='line'> 14</span> </span><span class="NAME">module.exports</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">options</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 15</span> </span><span class="WHIT">    </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="KEYW">new</span><span class="WHIT"> </span><span class="NAME">SMTPServer</span><span class="PUNC">(</span><span class="NAME">options</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 16</span> </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'> 17</span> 
+<span class='line'> 18</span> </span><span class="COMM">/**
+<span class='line'> 19</span>  * &lt;p>Constructs a SMTP server&lt;/p>
+<span class='line'> 20</span>  * 
+<span class='line'> 21</span>  * &lt;p>Possible options are:&lt;/p>
+<span class='line'> 22</span>  * 
+<span class='line'> 23</span>  * &lt;ul>
+<span class='line'> 24</span>  *     &lt;li>&lt;b>HOSTNAME&lt;/b> - the hostname of the server, will be used for
+<span class='line'> 25</span>  *         informational messages&lt;/li>
+<span class='line'> 26</span>  *     &lt;li>&lt;b>debug&lt;/b> - if set to true, print out messages about the connection&lt;/li>
+<span class='line'> 27</span>  *     &lt;li>&lt;b>timeout&lt;/b> - client timeout in milliseconds, defaults to 60 000&lt;/li>
+<span class='line'> 28</span>  *     &lt;li>&lt;b>SMTPBanner&lt;/b> - greeting banner that is sent to the client on connection&lt;/li>
+<span class='line'> 29</span>  *     &lt;li>&lt;b>requireAuthentication&lt;/b> - if set to true, require that the client
+<span class='line'> 30</span>  *         must authenticate itself&lt;/li>
+<span class='line'> 31</span>  *     &lt;li>&lt;b>validateSender&lt;/b> - if set to true, emit &lt;code>'validateSender'&lt;/code>
+<span class='line'> 32</span>  *         with &lt;code>email&lt;/code> and &lt;code>callback&lt;/code> when the client
+<span class='line'> 33</span>  *         enters &lt;code>MAIL FROM:&lt;address&gt;&lt;/code>&lt;/li>
+<span class='line'> 34</span>  *     &lt;li>&lt;b>validateRecipients&lt;/b> - if set to true, emit &lt;code>'validateRecipient'&lt;/code>
+<span class='line'> 35</span>  *         with &lt;code>email&lt;/code> and &lt;code>callback&lt;/code> when the client
+<span class='line'> 36</span>  *         enters &lt;code>RCPT TO:&lt;address&gt;&lt;/code>&lt;/li>
+<span class='line'> 37</span>  *     &lt;li>&lt;b>maxSize&lt;/b> - maximum size of an e-mail in bytes&lt;/li>
+<span class='line'> 38</span>  *     &lt;li>&lt;b>credentials&lt;/b> - TLS credentials&lt;/li>
+<span class='line'> 39</span>  *     &lt;li>&lt;b>authMethods&lt;/b> - allowed authentication methods, defaults to &lt;code>["PLAIN", "LOGIN"]&lt;/code>&lt;/li>
+<span class='line'> 40</span>  *     &lt;li>&lt;b>disableEHLO&lt;/b> - if set, support HELO only&lt;/li>
+<span class='line'> 41</span>  * &lt;/ul>
+<span class='line'> 42</span>  * 
+<span class='line'> 43</span>  * @constructor
+<span class='line'> 44</span>  * @namespace SMTP Server module
+<span class='line'> 45</span>  * @param {Object} [options] Options object
+<span class='line'> 46</span>  */</span><span class="WHIT">
+<span class='line'> 47</span> </span><span class="KEYW">function</span><span class="WHIT"> </span><span class="NAME">SMTPServer</span><span class="PUNC">(</span><span class="NAME">options</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 48</span> </span><span class="WHIT">    </span><span class="NAME">EventEmitter.call</span><span class="PUNC">(</span><span class="KEYW">this</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 49</span> </span><span class="WHIT">    
+<span class='line'> 50</span>     </span><span class="NAME">this.options</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">options</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="TOKN"> </span><span class="PUNC">{</span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 51</span> </span><span class="WHIT">    </span><span class="NAME">this.options.HOSTNAME</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">this.options.HOSTNAME</span><span class="TOKN"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">oslib.hostname</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT"> </span><span class="NAME">oslib.hostname</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT">
+<span class='line'> 52</span> </span><span class="WHIT">               </span><span class="PUNC">(</span><span class="NAME">oslib.getHostname</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT"> </span><span class="NAME">oslib.getHostname</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT">
+<span class='line'> 53</span> </span><span class="WHIT">               </span><span class="STRN">"127.0.0.1"</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 54</span> 
+<span class='line'> 55</span> </span><span class="WHIT">    </span><span class="NAME">this.options.authMethods</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">this.options.authMethods</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="PUNC">[</span><span class="STRN">"PLAIN"</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="STRN">"LOGIN"</span><span class="PUNC">]</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">map</span><span class="PUNC">(</span><span class="WHIT">
+<span class='line'> 56</span> </span><span class="WHIT">        </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">auth</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 57</span> </span><span class="WHIT">            </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">auth.toUpperCase</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">trim</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 58</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 59</span> </span><span class="WHIT">    
+<span class='line'> 60</span>     </span><span class="NAME">this.options.disableEHLO</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">!</span><span class="PUNC">!</span><span class="NAME">this.options.disableEHLO</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 61</span> 
+<span class='line'> 62</span> </span><span class="WHIT">    </span><span class="NAME">this.SMTPServer</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">new</span><span class="WHIT"> </span><span class="NAME">RAIServer</span><span class="PUNC">(</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 63</span> </span><span class="WHIT">        </span><span class="NAME">timeout</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="NAME">this.options.timeout</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="TOKN"> </span><span class="NUMB">60</span><span class="PUNC">*</span><span class="NUMB">1000</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 64</span> </span><span class="WHIT">        </span><span class="NAME">disconnectOnTimeout</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="KEYW">false</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 65</span> </span><span class="WHIT">        </span><span class="NAME">debug</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="PUNC">!</span><span class="PUNC">!</span><span class="NAME">this.options.debug</span><span class="WHIT">
+<span class='line'> 66</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 67</span> </span><span class="WHIT">    
+<span class='line'> 68</span>     </span><span class="NAME">this.SMTPServer.on</span><span class="PUNC">(</span><span class="STRN">"connection"</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">this._createSMTPServerConnection.bind</span><span class="PUNC">(</span><span class="KEYW">this</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 69</span> </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'> 70</span> </span><span class="NAME">utillib.inherits</span><span class="PUNC">(</span><span class="NAME">SMTPServer</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">EventEmitter</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 71</span> 
+<span class='line'> 72</span> </span><span class="COMM">/**
+<span class='line'> 73</span>  * Server starts listening on defined port and hostname
+<span class='line'> 74</span>  * 
+<span class='line'> 75</span>  * @param {Number} port The port number to listen
+<span class='line'> 76</span>  * @param {String} [host] The hostname to listen
+<span class='line'> 77</span>  * @param {Function} callback The callback function to run when the server is listening
+<span class='line'> 78</span>  */</span><span class="WHIT">
+<span class='line'> 79</span> </span><span class="NAME">SMTPServer.prototype.listen</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">port</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">host</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">callback</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 80</span> </span><span class="WHIT">    </span><span class="NAME">this.SMTPServer.listen</span><span class="PUNC">(</span><span class="NAME">port</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">host</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">callback</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 81</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 82</span> 
+<span class='line'> 83</span> </span><span class="COMM">/**
+<span class='line'> 84</span>  * &lt;p>Closes the server&lt;/p>
+<span class='line'> 85</span>  * 
+<span class='line'> 86</span>  * @param {Function} callback The callback function to run when the server is closed
+<span class='line'> 87</span>  */</span><span class="WHIT">
+<span class='line'> 88</span> </span><span class="NAME">SMTPServer.prototype.end</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">callback</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 89</span> </span><span class="WHIT">    </span><span class="NAME">this.SMTPServer.end</span><span class="PUNC">(</span><span class="NAME">callback</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 90</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 91</span> 
+<span class='line'> 92</span> </span><span class="COMM">/**
+<span class='line'> 93</span>  * &lt;p>Creates a new {@link SMTPServerConnection} object and links the main server with
+<span class='line'> 94</span>  * the client socket&lt;/p>
+<span class='line'> 95</span>  * 
+<span class='line'> 96</span>  * @param {Object} client RAISocket object to a client
+<span class='line'> 97</span>  */</span><span class="WHIT">
+<span class='line'> 98</span> </span><span class="NAME">SMTPServer.prototype._createSMTPServerConnection</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">client</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 99</span> </span><span class="WHIT">    </span><span class="KEYW">new</span><span class="WHIT"> </span><span class="NAME">SMTPServerConnection</span><span class="PUNC">(</span><span class="KEYW">this</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">client</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>100</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>101</span> 
+<span class='line'>102</span> </span><span class="COMM">/**
+<span class='line'>103</span>  * &lt;p>Sets up a handler for the connected client&lt;/p>
+<span class='line'>104</span>  * 
+<span class='line'>105</span>  * &lt;p>Restarts the state and sets up event listeners for client actions&lt;/p>
+<span class='line'>106</span>  * 
+<span class='line'>107</span>  * @constructor
+<span class='line'>108</span>  * @param {Object} server {@link SMTPServer} instance
+<span class='line'>109</span>  * @param {Object} client RAISocket instance for the client
+<span class='line'>110</span>  */</span><span class="WHIT">
+<span class='line'>111</span> </span><span class="KEYW">function</span><span class="WHIT"> </span><span class="NAME">SMTPServerConnection</span><span class="PUNC">(</span><span class="NAME">server</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">client</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>112</span> </span><span class="WHIT">    </span><span class="NAME">this.server</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">server</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>113</span> </span><span class="WHIT">    </span><span class="NAME">this.client</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">client</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>114</span> 
+<span class='line'>115</span> </span><span class="WHIT">    </span><span class="NAME">this.init</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>116</span> 
+<span class='line'>117</span> </span><span class="WHIT">    </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">this.server.options.debug</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>118</span> </span><span class="WHIT">        </span><span class="NAME">console.log</span><span class="PUNC">(</span><span class="STRN">"Connection from"</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">this.client.remoteAddress</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>119</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>120</span> </span><span class="WHIT">    
+<span class='line'>121</span>     </span><span class="NAME">this.client.on</span><span class="PUNC">(</span><span class="STRN">"timeout"</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">this._onTimeout.bind</span><span class="PUNC">(</span><span class="KEYW">this</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>122</span> </span><span class="WHIT">    </span><span class="NAME">this.client.on</span><span class="PUNC">(</span><span class="STRN">"error"</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">this._onError.bind</span><span class="PUNC">(</span><span class="KEYW">this</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>123</span> </span><span class="WHIT">    </span><span class="NAME">this.client.on</span><span class="PUNC">(</span><span class="STRN">"command"</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">this._onCommand.bind</span><span class="PUNC">(</span><span class="KEYW">this</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>124</span> </span><span class="WHIT">    </span><span class="NAME">this.client.on</span><span class="PUNC">(</span><span class="STRN">"end"</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">this._onEnd.bind</span><span class="PUNC">(</span><span class="KEYW">this</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>125</span> </span><span class="WHIT">    
+<span class='line'>126</span>     </span><span class="NAME">this.client.on</span><span class="PUNC">(</span><span class="STRN">"data"</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">this._onData.bind</span><span class="PUNC">(</span><span class="KEYW">this</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>127</span> </span><span class="WHIT">    </span><span class="NAME">this.client.on</span><span class="PUNC">(</span><span class="STRN">"ready"</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">this._onDataReady.bind</span><span class="PUNC">(</span><span class="KEYW">this</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>128</span> </span><span class="WHIT">    
+<span class='line'>129</span>     </span><span class="COMM">// Send the greeting banner</span><span class="WHIT">
+<span class='line'>130</span> </span><span class="WHIT">    </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"220 "</span><span class="PUNC">+</span><span class="NAME">this.server.options.HOSTNAME</span><span class="PUNC">+</span><span class="STRN">" "</span><span class="PUNC">+</span><span class="PUNC">(</span><span class="NAME">this.server.options.SMTPBanner</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="TOKN"> </span><span class="STRN">"ESMTP node.js simplesmtp"</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>131</span> </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>132</span> 
+<span class='line'>133</span> </span><span class="COMM">/**
+<span class='line'>134</span>  * &lt;p>Reset the envelope state&lt;/p>
+<span class='line'>135</span>  * 
+<span class='line'>136</span>  * &lt;p>If &lt;code>keepAuthData&lt;/code> is set to true, then doesn't remove
+<span class='line'>137</span>  * authentication data&lt;/p>
+<span class='line'>138</span>  * 
+<span class='line'>139</span>  * @param {Boolean} [keepAuthData=false] If set to true keep authentication data
+<span class='line'>140</span>  */</span><span class="WHIT">
+<span class='line'>141</span> </span><span class="NAME">SMTPServerConnection.prototype.init</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">keepAuthData</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>142</span> </span><span class="WHIT">    </span><span class="NAME">this.envelope</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="NAME">from</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">""</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">to</span><span class="PUNC">:</span><span class="PUNC">[</span><span class="PUNC">]</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">date</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="KEYW">new</span><span class="WHIT"> </span><span class="NAME">Date</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>143</span> </span><span class="WHIT">    
+<span class='line'>144</span>     </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">this.hostnamehostNameAppearsAs</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>145</span> </span><span class="WHIT">        </span><span class="NAME">this.envelope.host</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">this.hostNameAppearsAs</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>146</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>147</span> </span><span class="WHIT">    
+<span class='line'>148</span>     </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">this.client.remoteAddress</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>149</span> </span><span class="WHIT">        </span><span class="NAME">this.envelope.remoteAddress</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">this.client.remoteAddress</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>150</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>151</span> </span><span class="WHIT">    
+<span class='line'>152</span>     </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">keepAuthData</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>153</span> </span><span class="WHIT">        </span><span class="NAME">this.authentication</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>154</span> </span><span class="WHIT">            </span><span class="NAME">username</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="KEYW">false</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>155</span> </span><span class="WHIT">            </span><span class="NAME">authenticated</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="KEYW">false</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>156</span> </span><span class="WHIT">            </span><span class="NAME">state</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">"NORMAL"</span><span class="WHIT">
+<span class='line'>157</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>158</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>159</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>160</span> 
+<span class='line'>161</span> </span><span class="COMM">/**
+<span class='line'>162</span>  * &lt;p>Sends a message to the client and closes the connection&lt;/p>
+<span class='line'>163</span>  * 
+<span class='line'>164</span>  * @param {String} [message] if set, send it to the client before disconnecting
+<span class='line'>165</span>  */</span><span class="WHIT">
+<span class='line'>166</span> </span><span class="NAME">SMTPServerConnection.prototype.end</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">message</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>167</span> </span><span class="WHIT">    </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">message</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>168</span> </span><span class="WHIT">        </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="NAME">message</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>169</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>170</span> </span><span class="WHIT">    </span><span class="NAME">this.client.end</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>171</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>172</span> 
+<span class='line'>173</span> </span><span class="COMM">/**
+<span class='line'>174</span>  * &lt;p>Will be called when the connection to the client is closed&lt;/p>
+<span class='line'>175</span>  * 
+<span class='line'>176</span>  * @event
+<span class='line'>177</span>  */</span><span class="WHIT">
+<span class='line'>178</span> </span><span class="NAME">SMTPServerConnection.prototype._onEnd</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>179</span> </span><span class="WHIT">    </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">this.server.options.debug</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>180</span> </span><span class="WHIT">        </span><span class="NAME">console.log</span><span class="PUNC">(</span><span class="STRN">"Connection closed to"</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">this.client.remoteAddress</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>181</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>182</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>183</span> 
+<span class='line'>184</span> </span><span class="COMM">/**
+<span class='line'>185</span>  * &lt;p>Will be called when timeout occurs&lt;/p>
+<span class='line'>186</span>  * 
+<span class='line'>187</span>  * @event
+<span class='line'>188</span>  */</span><span class="WHIT">
+<span class='line'>189</span> </span><span class="NAME">SMTPServerConnection.prototype._onTimeout</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>190</span> </span><span class="WHIT">    </span><span class="NAME">this.end</span><span class="PUNC">(</span><span class="STRN">"421 4.4.2 "</span><span class="PUNC">+</span><span class="NAME">this.server.options.HOSTNAME</span><span class="PUNC">+</span><span class="STRN">" Error: timeout exceeded"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>191</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>192</span> 
+<span class='line'>193</span> </span><span class="COMM">/**
+<span class='line'>194</span>  * &lt;p>Will be called when an error occurs&lt;/p>
+<span class='line'>195</span>  * 
+<span class='line'>196</span>  * @event
+<span class='line'>197</span>  */</span><span class="WHIT">
+<span class='line'>198</span> </span><span class="NAME">SMTPServerConnection.prototype._onError</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>199</span> </span><span class="WHIT">    </span><span class="NAME">this.end</span><span class="PUNC">(</span><span class="STRN">"421 4.4.2 "</span><span class="PUNC">+</span><span class="NAME">this.server.options.HOSTNAME</span><span class="PUNC">+</span><span class="STRN">" Error: client error"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>200</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>201</span> 
+<span class='line'>202</span> </span><span class="COMM">/**
+<span class='line'>203</span>  * &lt;p>Will be called when a command is received from the client&lt;/p>
+<span class='line'>204</span>  * 
+<span class='line'>205</span>  * &lt;p>If there's curently an authentication process going on, route
+<span class='line'>206</span>  * the data to &lt;code>_handleAuthLogin&lt;/code>, otherwise act as
+<span class='line'>207</span>  * defined&lt;/p>
+<span class='line'>208</span>  * 
+<span class='line'>209</span>  * @event
+<span class='line'>210</span>  * @param {String} command Command
+<span class='line'>211</span>  * @param {Buffer} command Payload related to the command
+<span class='line'>212</span>  */</span><span class="WHIT">
+<span class='line'>213</span> </span><span class="NAME">SMTPServerConnection.prototype._onCommand</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">command</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">payload</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>214</span> 
+<span class='line'>215</span> </span><span class="WHIT">    </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">this.authentication.state</span><span class="WHIT"> </span><span class="PUNC">==</span><span class="WHIT"> </span><span class="STRN">"AUTHENTICATING"</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>216</span> </span><span class="WHIT">        </span><span class="NAME">this._handleAuthLogin</span><span class="PUNC">(</span><span class="NAME">command</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>217</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>218</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>219</span> </span><span class="WHIT">    
+<span class='line'>220</span>     </span><span class="KEYW">switch</span><span class="PUNC">(</span><span class="NAME">command</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>221</span> </span><span class="WHIT">        
+<span class='line'>222</span>         </span><span class="COMM">// Should not occur too often </span><span class="WHIT">
+<span class='line'>223</span> </span><span class="WHIT">        </span><span class="KEYW">case</span><span class="WHIT"> </span><span class="STRN">"HELO"</span><span class="PUNC">:</span><span class="WHIT">
+<span class='line'>224</span> </span><span class="WHIT">            </span><span class="NAME">this._onCommandHELO</span><span class="PUNC">(</span><span class="NAME">payload.toString</span><span class="PUNC">(</span><span class="STRN">"utf-8"</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">trim</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>225</span> </span><span class="WHIT">            </span><span class="KEYW">break</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>226</span> </span><span class="WHIT">            
+<span class='line'>227</span>         </span><span class="COMM">// Lists server capabilities</span><span class="WHIT">
+<span class='line'>228</span> </span><span class="WHIT">        </span><span class="KEYW">case</span><span class="WHIT"> </span><span class="STRN">"EHLO"</span><span class="PUNC">:</span><span class="WHIT">
+<span class='line'>229</span> </span><span class="WHIT">            </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">this.server.options.disableEHLO</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>230</span> </span><span class="WHIT">                </span><span class="NAME">this._onCommandEHLO</span><span class="PUNC">(</span><span class="NAME">payload.toString</span><span class="PUNC">(</span><span class="STRN">"utf-8"</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">trim</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>231</span> </span><span class="WHIT">            </span><span class="PUNC">}</span><span class="KEYW">else</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>232</span> </span><span class="WHIT">                </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"502 5.5.2 Error: command not recognized"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>233</span> </span><span class="WHIT">            </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>234</span> </span><span class="WHIT">            </span><span class="KEYW">break</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>235</span> </span><span class="WHIT">            
+<span class='line'>236</span>         </span><span class="COMM">// Closes the connection</span><span class="WHIT">
+<span class='line'>237</span> </span><span class="WHIT">        </span><span class="KEYW">case</span><span class="WHIT"> </span><span class="STRN">"QUIT"</span><span class="PUNC">:</span><span class="WHIT">
+<span class='line'>238</span> </span><span class="WHIT">            </span><span class="NAME">this.end</span><span class="PUNC">(</span><span class="STRN">"221 2.0.0 Goodbye!"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>239</span> </span><span class="WHIT">            </span><span class="KEYW">break</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>240</span> 
+<span class='line'>241</span> </span><span class="WHIT">        </span><span class="COMM">// Resets the current state</span><span class="WHIT">
+<span class='line'>242</span> </span><span class="WHIT">        </span><span class="KEYW">case</span><span class="WHIT"> </span><span class="STRN">"RSET"</span><span class="PUNC">:</span><span class="WHIT">
+<span class='line'>243</span> </span><span class="WHIT">            </span><span class="NAME">this._onCommandRSET</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>244</span> </span><span class="WHIT">            </span><span class="KEYW">break</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>245</span> </span><span class="WHIT">        
+<span class='line'>246</span>         </span><span class="COMM">// Doesn't work for spam related purposes</span><span class="WHIT">
+<span class='line'>247</span> </span><span class="WHIT">        </span><span class="KEYW">case</span><span class="WHIT"> </span><span class="STRN">"VRFY"</span><span class="PUNC">:</span><span class="WHIT">
+<span class='line'>248</span> </span><span class="WHIT">            </span><span class="NAME">this.end</span><span class="PUNC">(</span><span class="STRN">"252 2.1.5 Send some mail, I'll try my best"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>249</span> </span><span class="WHIT">            </span><span class="KEYW">break</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>250</span> </span><span class="WHIT">        
+<span class='line'>251</span>         </span><span class="COMM">// Initiate an e-mail by defining a sender</span><span class="WHIT">
+<span class='line'>252</span> </span><span class="WHIT">        </span><span class="KEYW">case</span><span class="WHIT"> </span><span class="STRN">"MAIL"</span><span class="PUNC">:</span><span class="WHIT">
+<span class='line'>253</span> </span><span class="WHIT">            </span><span class="NAME">this._onCommandMAIL</span><span class="PUNC">(</span><span class="NAME">payload.toString</span><span class="PUNC">(</span><span class="STRN">"utf-8"</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">trim</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>254</span> </span><span class="WHIT">            </span><span class="KEYW">break</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>255</span> </span><span class="WHIT">        
+<span class='line'>256</span>         </span><span class="COMM">// Add recipients to the e-mail envelope</span><span class="WHIT">
+<span class='line'>257</span> </span><span class="WHIT">        </span><span class="KEYW">case</span><span class="WHIT"> </span><span class="STRN">"RCPT"</span><span class="PUNC">:</span><span class="WHIT">
+<span class='line'>258</span> </span><span class="WHIT">            </span><span class="NAME">this._onCommandRCPT</span><span class="PUNC">(</span><span class="NAME">payload.toString</span><span class="PUNC">(</span><span class="STRN">"utf-8"</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">trim</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>259</span> </span><span class="WHIT">            </span><span class="KEYW">break</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>260</span> </span><span class="WHIT">        
+<span class='line'>261</span>         </span><span class="COMM">// Authenticate if needed</span><span class="WHIT">
+<span class='line'>262</span> </span><span class="WHIT">        </span><span class="KEYW">case</span><span class="WHIT"> </span><span class="STRN">"AUTH"</span><span class="PUNC">:</span><span class="WHIT">
+<span class='line'>263</span> </span><span class="WHIT">            </span><span class="NAME">this._onCommandAUTH</span><span class="PUNC">(</span><span class="NAME">payload</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>264</span> </span><span class="WHIT">            </span><span class="KEYW">break</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>265</span> </span><span class="WHIT">        
+<span class='line'>266</span>         </span><span class="COMM">// Start accepting binary data stream</span><span class="WHIT">
+<span class='line'>267</span> </span><span class="WHIT">        </span><span class="KEYW">case</span><span class="WHIT"> </span><span class="STRN">"DATA"</span><span class="PUNC">:</span><span class="WHIT">
+<span class='line'>268</span> </span><span class="WHIT">            </span><span class="NAME">this._onCommandDATA</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>269</span> </span><span class="WHIT">            </span><span class="KEYW">break</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>270</span> </span><span class="WHIT">        
+<span class='line'>271</span>         </span><span class="COMM">// Upgrade connection to secure TLS</span><span class="WHIT">
+<span class='line'>272</span> </span><span class="WHIT">        </span><span class="KEYW">case</span><span class="WHIT"> </span><span class="STRN">"STARTTLS"</span><span class="PUNC">:</span><span class="WHIT">
+<span class='line'>273</span> </span><span class="WHIT">            </span><span class="NAME">this._onCommandSTARTTLS</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>274</span> </span><span class="WHIT">            </span><span class="KEYW">break</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>275</span> </span><span class="WHIT">            
+<span class='line'>276</span>         </span><span class="COMM">// Display an error on anything else</span><span class="WHIT">
+<span class='line'>277</span> </span><span class="WHIT">        </span><span class="KEYW">default</span><span class="PUNC">:</span><span class="WHIT">
+<span class='line'>278</span> </span><span class="WHIT">            </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"502 5.5.2 Error: command not recognized"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>279</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">  
+<span class='line'>280</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>281</span> 
+<span class='line'>282</span> </span><span class="COMM">/**
+<span class='line'>283</span>  * &lt;p>Initiate an e-mail by defining a sender.&lt;/p>
+<span class='line'>284</span>  * 
+<span class='line'>285</span>  * &lt;p>This doesn't work if authorization is required but the client is
+<span class='line'>286</span>  * not logged in yet.&lt;/p>
+<span class='line'>287</span>  * 
+<span class='line'>288</span>  * &lt;p>If &lt;code>validateSender&lt;/code> option is set to true, then emits
+<span class='line'>289</span>  * &lt;code>'validateSender'&lt;/code> and wait for the callback before moving
+<span class='line'>290</span>  * on&lt;/p>
+<span class='line'>291</span>  * 
+<span class='line'>292</span>  * @param {String} mail Address payload in the form of "FROM:&lt;address&gt;"
+<span class='line'>293</span>  */</span><span class="WHIT">
+<span class='line'>294</span> </span><span class="NAME">SMTPServerConnection.prototype._onCommandMAIL</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">mail</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>295</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">match</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">email</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">domain</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>296</span> </span><span class="WHIT">    
+<span class='line'>297</span>     </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">this.hostNameAppearsAs</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>298</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"503 5.5.1 Error: send HELO/EHLO first"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>299</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>300</span> </span><span class="WHIT">    
+<span class='line'>301</span>     </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">this.server.options.requireAuthentication</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT"> </span><span class="PUNC">!</span><span class="NAME">this.authentication.authenticated</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>302</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"530 5.5.1 Authentication Required"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>303</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>304</span> </span><span class="WHIT">    
+<span class='line'>305</span>     </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">this.envelope.from</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>306</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"503 5.5.1 Error: nested MAIL command"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>307</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>308</span> </span><span class="WHIT">    
+<span class='line'>309</span>     </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="PUNC">!</span><span class="PUNC">(</span><span class="NAME">match</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">mail.match</span><span class="PUNC">(</span><span class="REGX">/^from\:\s*&lt;([^@>]+\@([^@>]+))>$/i</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>310</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"501 5.1.7 Bad sender address syntax"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>311</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>312</span> </span><span class="WHIT">    
+<span class='line'>313</span>     </span><span class="NAME">email</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">match</span><span class="PUNC">[</span><span class="NUMB">1</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="STRN">""</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>314</span> </span><span class="WHIT">    </span><span class="NAME">domain</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">match</span><span class="PUNC">[</span><span class="NUMB">2</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="TOKN"> </span><span class="STRN">""</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">toLowerCase</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>315</span> </span><span class="WHIT">    
+<span class='line'>316</span>     </span><span class="NAME">dnslib.resolveMx</span><span class="PUNC">(</span><span class="NAME">domain</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">addresses</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>317</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">err</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="TOKN"> </span><span class="PUNC">!</span><span class="NAME">addresses</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="PUNC">!</span><span class="NAME">addresses.length</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>318</span> </span><span class="WHIT">            </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"450 4.1.8 &lt;"</span><span class="PUNC">+</span><span class="NAME">email</span><span class="PUNC">+</span><span class="STRN">">: Sender address rejected: Domain not found"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>319</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>320</span> </span><span class="WHIT">        
+<span class='line'>321</span>         </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">this.server.options.validateSender</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>322</span> </span><span class="WHIT">            </span><span class="NAME">this.server.emit</span><span class="PUNC">(</span><span class="STRN">"validateSender"</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">email</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>323</span> </span><span class="WHIT">                </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>324</span> </span><span class="WHIT">                    </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"550 5.1.1 &lt;"</span><span class="PUNC">+</span><span class="NAME">email</span><span class="PUNC">+</span><span class="STRN">">: Sender address rejected: User unknown in local sender table"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>325</span> </span><span class="WHIT">                </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>326</span> </span><span class="WHIT">                
+<span class='line'>327</span>                 </span><span class="COMM">// force domain part to be lowercase</span><span class="WHIT">
+<span class='line'>328</span> </span><span class="WHIT">                </span><span class="NAME">email</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">email.substr</span><span class="PUNC">(</span><span class="NUMB">0</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">email.length</span><span class="WHIT"> </span><span class="PUNC">-</span><span class="WHIT"> </span><span class="NAME">domain.length</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="NAME">domain</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>329</span> </span><span class="WHIT">                </span><span class="NAME">this.envelope.from</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">email</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>330</span> </span><span class="WHIT">                </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"250 2.1.0 Ok"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>331</span> </span><span class="WHIT">        
+<span class='line'>332</span>             </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">bind</span><span class="PUNC">(</span><span class="KEYW">this</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>333</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="KEYW">else</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>334</span> </span><span class="WHIT">            </span><span class="COMM">// force domain part to be lowercase</span><span class="WHIT">
+<span class='line'>335</span> </span><span class="WHIT">            </span><span class="NAME">email</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">email.substr</span><span class="PUNC">(</span><span class="NUMB">0</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">email.length</span><span class="WHIT"> </span><span class="PUNC">-</span><span class="WHIT"> </span><span class="NAME">domain.length</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="NAME">domain</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>336</span> </span><span class="WHIT">            </span><span class="NAME">this.envelope.from</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">email</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>337</span> </span><span class="WHIT">            </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"250 2.1.0 Ok"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>338</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>339</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">bind</span><span class="PUNC">(</span><span class="KEYW">this</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">  
+<span class='line'>340</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>341</span> 
+<span class='line'>342</span> </span><span class="COMM">/**
+<span class='line'>343</span>  * &lt;p>Add recipients to the e-mail envelope&lt;/p>
+<span class='line'>344</span>  * 
+<span class='line'>345</span>  * &lt;p>This doesn't work if &lt;code>MAIL&lt;/code> command is not yet executed&lt;/p>
+<span class='line'>346</span>  * 
+<span class='line'>347</span>  * &lt;p>If &lt;code>validateRecipients&lt;/code> option is set to true, then emits
+<span class='line'>348</span>  * &lt;code>'validateRecipient'&lt;/code> and wait for the callback before moving
+<span class='line'>349</span>  * on&lt;/p>
+<span class='line'>350</span>  * 
+<span class='line'>351</span>  * @param {String} mail Address payload in the form of "TO:&lt;address&gt;"
+<span class='line'>352</span>  */</span><span class="WHIT">
+<span class='line'>353</span> </span><span class="NAME">SMTPServerConnection.prototype._onCommandRCPT</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">mail</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>354</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">match</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">email</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">domain</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>355</span> </span><span class="WHIT">    
+<span class='line'>356</span>     </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">this.envelope.from</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>357</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"503 5.5.1 Error: need MAIL command"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>358</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>359</span> </span><span class="WHIT">    
+<span class='line'>360</span>     </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="PUNC">!</span><span class="PUNC">(</span><span class="NAME">match</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">mail.match</span><span class="PUNC">(</span><span class="REGX">/^to\:\s*&lt;([^@>]+\@([^@>]+))>$/i</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>361</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"501 5.1.7 Bad recipient address syntax"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>362</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>363</span> </span><span class="WHIT">    
+<span class='line'>364</span>     </span><span class="NAME">email</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">match</span><span class="PUNC">[</span><span class="NUMB">1</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="STRN">""</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>365</span> </span><span class="WHIT">    </span><span class="NAME">domain</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">match</span><span class="PUNC">[</span><span class="NUMB">2</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="TOKN"> </span><span class="STRN">""</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">toLowerCase</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>366</span> </span><span class="WHIT">    
+<span class='line'>367</span>     </span><span class="NAME">dnslib.resolveMx</span><span class="PUNC">(</span><span class="NAME">domain</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">addresses</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>368</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">err</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="TOKN"> </span><span class="PUNC">!</span><span class="NAME">addresses</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="PUNC">!</span><span class="NAME">addresses.length</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>369</span> </span><span class="WHIT">            </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"450 4.1.8 &lt;"</span><span class="PUNC">+</span><span class="NAME">email</span><span class="PUNC">+</span><span class="STRN">">: Recipient address rejected: Domain not found"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>370</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>371</span> </span><span class="WHIT">        
+<span class='line'>372</span>         </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">this.server.options.validateRecipients</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>373</span> </span><span class="WHIT">            </span><span class="NAME">this.server.emit</span><span class="PUNC">(</span><span class="STRN">"validateRecipient"</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">email</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>374</span> </span><span class="WHIT">                </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>375</span> </span><span class="WHIT">                    </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"550 5.1.1 &lt;"</span><span class="PUNC">+</span><span class="NAME">email</span><span class="PUNC">+</span><span class="STRN">">: Recipient address rejected: User unknown in local recipient table"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>376</span> </span><span class="WHIT">                </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>377</span> </span><span class="WHIT">                
+<span class='line'>378</span>                 </span><span class="COMM">// force domain part to be lowercase</span><span class="WHIT">
+<span class='line'>379</span> </span><span class="WHIT">                </span><span class="NAME">email</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">email.substr</span><span class="PUNC">(</span><span class="NUMB">0</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">email.length</span><span class="WHIT"> </span><span class="PUNC">-</span><span class="WHIT"> </span><span class="NAME">domain.length</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="NAME">domain</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>380</span> </span><span class="WHIT">                
+<span class='line'>381</span>                 </span><span class="COMM">// add to recipients list</span><span class="WHIT">
+<span class='line'>382</span> </span><span class="WHIT">                </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">this.envelope.to.indexOf</span><span class="PUNC">(</span><span class="NAME">email</span><span class="PUNC">)</span><span class="PUNC">&lt;</span><span class="NUMB">0</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>383</span> </span><span class="WHIT">                    </span><span class="NAME">this.envelope.to.push</span><span class="PUNC">(</span><span class="NAME">email</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>384</span> </span><span class="WHIT">                </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>385</span> </span><span class="WHIT">                </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"250 2.1.0 Ok"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>386</span> </span><span class="WHIT">            </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">bind</span><span class="PUNC">(</span><span class="KEYW">this</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>387</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="KEYW">else</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>388</span> </span><span class="WHIT">            </span><span class="COMM">// force domain part to be lowercase</span><span class="WHIT">
+<span class='line'>389</span> </span><span class="WHIT">            </span><span class="NAME">email</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">email.substr</span><span class="PUNC">(</span><span class="NUMB">0</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">email.length</span><span class="WHIT"> </span><span class="PUNC">-</span><span class="WHIT"> </span><span class="NAME">domain.length</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">+</span><span class="WHIT"> </span><span class="NAME">domain</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>390</span> </span><span class="WHIT">            
+<span class='line'>391</span>             </span><span class="COMM">// add to recipients list</span><span class="WHIT">
+<span class='line'>392</span> </span><span class="WHIT">            </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">this.envelope.to.indexOf</span><span class="PUNC">(</span><span class="NAME">email</span><span class="PUNC">)</span><span class="PUNC">&lt;</span><span class="NUMB">0</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>393</span> </span><span class="WHIT">                </span><span class="NAME">this.envelope.to.push</span><span class="PUNC">(</span><span class="NAME">email</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>394</span> </span><span class="WHIT">            </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>395</span> </span><span class="WHIT">            </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"250 2.1.0 Ok"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>396</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>397</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">bind</span><span class="PUNC">(</span><span class="KEYW">this</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">  
+<span class='line'>398</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>399</span> 
+<span class='line'>400</span> </span><span class="COMM">/**
+<span class='line'>401</span>  * &lt;p>Switch to data mode and starts waiting for a binary data stream. Emits
+<span class='line'>402</span>  * &lt;code>'startData'&lt;/code>.&lt;/p>
+<span class='line'>403</span>  * 
+<span class='line'>404</span>  * &lt;p>If &lt;code>RCPT&lt;/code> is not yet run, stop&lt;/p>
+<span class='line'>405</span>  */</span><span class="WHIT">
+<span class='line'>406</span> </span><span class="NAME">SMTPServerConnection.prototype._onCommandDATA</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>407</span> </span><span class="WHIT">    
+<span class='line'>408</span>     </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">this.envelope.to.length</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>409</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"503 5.5.1 Error: need RCPT command"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>410</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>411</span> </span><span class="WHIT">    
+<span class='line'>412</span>     </span><span class="NAME">this.client.startDataMode</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>413</span> </span><span class="WHIT">    </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"354 End data with &lt;CR>&lt;LF>.&lt;CR>&lt;LF>"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>414</span> </span><span class="WHIT">    </span><span class="NAME">this.server.emit</span><span class="PUNC">(</span><span class="STRN">"startData"</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">this.envelope</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>415</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>416</span> 
+<span class='line'>417</span> </span><span class="COMM">/**
+<span class='line'>418</span>  * &lt;p>Resets the current state - e-mail data and authentication info&lt;/p>
+<span class='line'>419</span>  */</span><span class="WHIT">
+<span class='line'>420</span> </span><span class="NAME">SMTPServerConnection.prototype._onCommandRSET</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>421</span> </span><span class="WHIT">    </span><span class="NAME">this.init</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>422</span> </span><span class="WHIT">    </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"250 2.0.0 Ok"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>423</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>424</span> 
+<span class='line'>425</span> </span><span class="COMM">/**
+<span class='line'>426</span>  * &lt;p>If the server is in secure connection mode, start the authentication
+<span class='line'>427</span>  * process. Param &lt;code>payload&lt;/code> defines the authentication mechanism.&lt;/p>
+<span class='line'>428</span>  * 
+<span class='line'>429</span>  * &lt;p>Currently supported - PLAIN and LOGIN. There is no need for more
+<span class='line'>430</span>  * complicated mechanisms (different CRAM versions etc.) since authentication
+<span class='line'>431</span>  * is only done in secure connection mode&lt;/p>
+<span class='line'>432</span>  * 
+<span class='line'>433</span>  * @param {Buffer} payload Defines the authentication mechanism
+<span class='line'>434</span>  */</span><span class="WHIT">
+<span class='line'>435</span> </span><span class="NAME">SMTPServerConnection.prototype._onCommandAUTH</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">payload</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>436</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">method</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>437</span> </span><span class="WHIT">    
+<span class='line'>438</span>     </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">this.server.options.requireAuthentication</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>439</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"503 5.5.1 Error: authentication not enabled"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>440</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>441</span> </span><span class="WHIT">    
+<span class='line'>442</span>     </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">this.client.secureConnection</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>443</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"530 5.7.0 Must issue a STARTTLS command first"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>444</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>445</span> </span><span class="WHIT">    
+<span class='line'>446</span>     </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">this.authentication.authenticated</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>447</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"503 5.7.0 No identity changes permitted"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>448</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>449</span> </span><span class="WHIT">    
+<span class='line'>450</span>     </span><span class="NAME">payload</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">payload.toString</span><span class="PUNC">(</span><span class="STRN">"utf-8"</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">trim</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">split</span><span class="PUNC">(</span><span class="STRN">" "</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>451</span> </span><span class="WHIT">    </span><span class="NAME">method</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">payload.shift</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">trim</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">toUpperCase</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>452</span> </span><span class="WHIT">    
+<span class='line'>453</span>     </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">this.server.options.authMethods.indexOf</span><span class="PUNC">(</span><span class="NAME">method</span><span class="PUNC">)</span><span class="PUNC">&lt;</span><span class="NUMB">0</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>454</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"535 5.7.8 Error: authentication failed: no mechanism available"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>455</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>456</span> </span><span class="WHIT">    
+<span class='line'>457</span>     </span><span class="KEYW">switch</span><span class="PUNC">(</span><span class="NAME">method</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>458</span> </span><span class="WHIT">        </span><span class="KEYW">case</span><span class="WHIT"> </span><span class="STRN">"PLAIN"</span><span class="PUNC">:</span><span class="WHIT">
+<span class='line'>459</span> </span><span class="WHIT">            </span><span class="NAME">this._handleAuthPlain</span><span class="PUNC">(</span><span class="NAME">payload</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>460</span> </span><span class="WHIT">            </span><span class="KEYW">break</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>461</span> </span><span class="WHIT">        </span><span class="KEYW">case</span><span class="WHIT"> </span><span class="STRN">"LOGIN"</span><span class="PUNC">:</span><span class="WHIT">
+<span class='line'>462</span> </span><span class="WHIT">            </span><span class="NAME">this._handleAuthLogin</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>463</span> </span><span class="WHIT">            </span><span class="KEYW">break</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>464</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>465</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>466</span> 
+<span class='line'>467</span> </span><span class="COMM">/**
+<span class='line'>468</span>  * &lt;p>Upgrade the connection to a secure TLS connection&lt;/p>
+<span class='line'>469</span>  */</span><span class="WHIT">
+<span class='line'>470</span> </span><span class="NAME">SMTPServerConnection.prototype._onCommandSTARTTLS</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>471</span> </span><span class="WHIT">    </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">this.client.secureConnection</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>472</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"554 5.5.1 Error: TLS already active"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>473</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>474</span> </span><span class="WHIT">    
+<span class='line'>475</span>     </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"220 2.0.0 Ready to start TLS"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>476</span> </span><span class="WHIT">    
+<span class='line'>477</span>     </span><span class="NAME">this.client.startTLS</span><span class="PUNC">(</span><span class="NAME">this.server.options.credentials</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>478</span> </span><span class="WHIT">        </span><span class="COMM">// Connection secured</span><span class="WHIT">
+<span class='line'>479</span> </span><span class="WHIT">        </span><span class="COMM">// nothing to do here, since it is the client that should </span><span class="WHIT">
+<span class='line'>480</span> </span><span class="WHIT">        </span><span class="COMM">// make the next move</span><span class="WHIT">
+<span class='line'>481</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">bind</span><span class="PUNC">(</span><span class="KEYW">this</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>482</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>483</span> 
+<span class='line'>484</span> </span><span class="COMM">/**
+<span class='line'>485</span>  * &lt;p>Retrieve hostname from the client. Not very important, since client
+<span class='line'>486</span>  * IP is already known and the client can send fake data&lt;/p>
+<span class='line'>487</span>  * 
+<span class='line'>488</span>  * @param {String} host Hostname of the client
+<span class='line'>489</span>  */</span><span class="WHIT">
+<span class='line'>490</span> </span><span class="NAME">SMTPServerConnection.prototype._onCommandHELO</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">host</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>491</span> </span><span class="WHIT">    </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">host</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>492</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"501 Syntax: EHLO hostname"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>493</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="KEYW">else</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>494</span> </span><span class="WHIT">        </span><span class="NAME">this.hostNameAppearsAs</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">host</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>495</span> </span><span class="WHIT">        </span><span class="NAME">this.envelope.host</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">host</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>496</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>497</span> </span><span class="WHIT">    </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"250 "</span><span class="PUNC">+</span><span class="NAME">this.server.options.HOSTNAME</span><span class="PUNC">+</span><span class="STRN">" at your service, ["</span><span class="PUNC">+</span><span class="WHIT">
+<span class='line'>498</span> </span><span class="WHIT">        </span><span class="NAME">this.client.remoteAddress</span><span class="PUNC">+</span><span class="STRN">"]"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>499</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>500</span> 
+<span class='line'>501</span> </span><span class="COMM">/**
+<span class='line'>502</span>  * &lt;p>Retrieve hostname from the client. Not very important, since client
+<span class='line'>503</span>  * IP is already known and the client can send fake data&lt;/p>
+<span class='line'>504</span>  * 
+<span class='line'>505</span>  * &lt;p>Additionally displays server capability list to the client&lt;/p>
+<span class='line'>506</span>  * 
+<span class='line'>507</span>  * @param {String} host Hostname of the client 
+<span class='line'>508</span>  */</span><span class="WHIT">
+<span class='line'>509</span> </span><span class="NAME">SMTPServerConnection.prototype._onCommandEHLO</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">host</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>510</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">response</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">[</span><span class="NAME">this.server.options.HOSTNAME</span><span class="PUNC">+</span><span class="STRN">" at your service, ["</span><span class="PUNC">+</span><span class="WHIT">
+<span class='line'>511</span> </span><span class="WHIT">        </span><span class="NAME">this.client.remoteAddress</span><span class="PUNC">+</span><span class="STRN">"]"</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="STRN">"8BITMIME"</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="STRN">"ENHANCEDSTATUSCODES"</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>512</span> </span><span class="WHIT">    
+<span class='line'>513</span>     </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">this.server.options.maxSize</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>514</span> </span><span class="WHIT">        </span><span class="NAME">response.push</span><span class="PUNC">(</span><span class="STRN">"SIZE "</span><span class="PUNC">+</span><span class="NAME">this.server.options.maxSize</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>515</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>516</span> </span><span class="WHIT">    
+<span class='line'>517</span>     </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">this.client.secureConnection</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT"> </span><span class="NAME">this.server.options.requireAuthentication</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>518</span> </span><span class="WHIT">        </span><span class="NAME">response.push</span><span class="PUNC">(</span><span class="STRN">"AUTH "</span><span class="PUNC">+</span><span class="NAME">this.server.options.authMethods.join</span><span class="PUNC">(</span><span class="STRN">" "</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>519</span> </span><span class="WHIT">        </span><span class="NAME">response.push</span><span class="PUNC">(</span><span class="STRN">"AUTH="</span><span class="PUNC">+</span><span class="NAME">this.server.options.authMethods.join</span><span class="PUNC">(</span><span class="STRN">" "</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>520</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>521</span> </span><span class="WHIT">    
+<span class='line'>522</span>     </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">this.client.secureConnection</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>523</span> </span><span class="WHIT">        </span><span class="NAME">response.push</span><span class="PUNC">(</span><span class="STRN">"STARTTLS"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>524</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>525</span> </span><span class="WHIT">    
+<span class='line'>526</span>     </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="PUNC">!</span><span class="NAME">host</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>527</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"501 Syntax: EHLO hostname"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>528</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="KEYW">else</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>529</span> </span><span class="WHIT">        </span><span class="NAME">this.hostNameAppearsAs</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">host</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>530</span> </span><span class="WHIT">        </span><span class="NAME">this.envelope.host</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">host</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>531</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>532</span> </span><span class="WHIT">    
+<span class='line'>533</span>     </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="NAME">response.map</span><span class="PUNC">(</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">feature</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">i</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">arr</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>534</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="STRN">"250"</span><span class="PUNC">+</span><span class="PUNC">(</span><span class="NAME">i</span><span class="PUNC">&lt;</span><span class="NAME">arr.length</span><span class="PUNC">-</span><span class="NUMB">1</span><span class="PUNC">?</span><span class="STRN">"-"</span><span class="PUNC">:</span><span class="STRN">" "</span><span class="PUNC">)</span><span class="PUNC">+</span><span class="NAME">feature</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>535</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">join</span><span class="PUNC">(</span><span class="STRN">"\r\n"</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">    
+<span class='line'>536</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>537</span> 
+<span class='line'>538</span> </span><span class="COMM">/**
+<span class='line'>539</span>  * &lt;p>Detect login information from the payload and initiate authentication
+<span class='line'>540</span>  * by emitting &lt;code>'authorizeUser'&lt;/code> and waiting for its callback&lt;/p>
+<span class='line'>541</span>  * 
+<span class='line'>542</span>  * @param {Buffer} payload AUTH PLAIN login information
+<span class='line'>543</span>  */</span><span class="WHIT">
+<span class='line'>544</span> </span><span class="NAME">SMTPServerConnection.prototype._handleAuthPlain</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">payload</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>545</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">userdata</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">new</span><span class="WHIT"> </span><span class="NAME">Buffer</span><span class="PUNC">(</span><span class="NAME">payload.join</span><span class="PUNC">(</span><span class="STRN">" "</span><span class="PUNC">)</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="STRN">"base64"</span><span class="PUNC">)</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">password</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>546</span> </span><span class="WHIT">    </span><span class="NAME">userdata</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">userdata.toString</span><span class="PUNC">(</span><span class="STRN">"utf-8"</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">split</span><span class="PUNC">(</span><span class="STRN">"\u0000"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>547</span> </span><span class="WHIT">    </span><span class="NAME">this.authentication.username</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">userdata</span><span class="PUNC">[</span><span class="NUMB">1</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="NAME">userdata</span><span class="PUNC">[</span><span class="NUMB">0</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="TOKN"> </span><span class="STRN">""</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>548</span> </span><span class="WHIT">    </span><span class="NAME">password</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">userdata</span><span class="PUNC">[</span><span class="NUMB">2</span><span class="PUNC">]</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="STRN">""</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>549</span> </span><span class="WHIT">    
+<span class='line'>550</span>     </span><span class="NAME">this.server.emit</span><span class="PUNC">(</span><span class="STRN">"authorizeUser"</span><span class="PUNC">,</span><span class="WHIT"> 
+<span class='line'>551</span>         </span><span class="NAME">this.envelope</span><span class="PUNC">,</span><span class="WHIT"> 
+<span class='line'>552</span>         </span><span class="NAME">this.authentication.username</span><span class="PUNC">,</span><span class="WHIT"> 
+<span class='line'>553</span>         </span><span class="NAME">password</span><span class="PUNC">,</span><span class="WHIT"> 
+<span class='line'>554</span>         </span><span class="PUNC">(</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">success</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>555</span> </span><span class="WHIT">            </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">err</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="PUNC">!</span><span class="NAME">success</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>556</span> </span><span class="WHIT">                </span><span class="NAME">this.authentication.authenticated</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">false</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>557</span> </span><span class="WHIT">                </span><span class="NAME">this.authentication.username</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">false</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>558</span> </span><span class="WHIT">                </span><span class="NAME">this.authentication.state</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="STRN">"NORMAL"</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>559</span> </span><span class="WHIT">                </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"535 5.7.8 Error: authentication failed: generic failure"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>560</span> </span><span class="WHIT">            </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>561</span> </span><span class="WHIT">            </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"235 2.7.0 Authentication successful"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>562</span> </span><span class="WHIT">            </span><span class="NAME">this.authentication.authenticated</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">true</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>563</span> </span><span class="WHIT">            </span><span class="NAME">this.authentication.state</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="STRN">"AUTHENTICATED"</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>564</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">bind</span><span class="PUNC">(</span><span class="KEYW">this</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>565</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>566</span> 
+<span class='line'>567</span> </span><span class="COMM">/**
+<span class='line'>568</span>  * &lt;p>Sets authorization state to "AUTHENTICATING" and reuqests for the
+<span class='line'>569</span>  * username and password from the client&lt;/p>
+<span class='line'>570</span>  * 
+<span class='line'>571</span>  * &lt;p>If username and password are set initiate authentication
+<span class='line'>572</span>  * by emitting &lt;code>'authorizeUser'&lt;/code> and waiting for its callback&lt;/p>
+<span class='line'>573</span>  * 
+<span class='line'>574</span>  * @param {Buffer} payload AUTH LOGIN login information
+<span class='line'>575</span>  */</span><span class="WHIT">
+<span class='line'>576</span> </span><span class="NAME">SMTPServerConnection.prototype._handleAuthLogin</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">payload</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>577</span> </span><span class="WHIT">    </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">this.authentication.state</span><span class="WHIT"> </span><span class="PUNC">==</span><span class="WHIT"> </span><span class="STRN">"NORMAL"</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>578</span> </span><span class="WHIT">        </span><span class="NAME">this.authentication.state</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="STRN">"AUTHENTICATING"</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>579</span> </span><span class="WHIT">        </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"334 VXNlcm5hbWU6"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>580</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="KEYW">else</span><span class="WHIT"> </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">this.authentication.state</span><span class="WHIT"> </span><span class="PUNC">==</span><span class="WHIT"> </span><span class="STRN">"AUTHENTICATING"</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>581</span> </span><span class="WHIT">        </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">this.authentication.username</span><span class="WHIT"> </span><span class="PUNC">===</span><span class="WHIT"> </span><span class="KEYW">false</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>582</span> </span><span class="WHIT">            </span><span class="NAME">this.authentication.username</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">new</span><span class="WHIT"> </span><span class="NAME">Buffer</span><span class="PUNC">(</span><span class="NAME">payload</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="STRN">"base64"</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">toString</span><span class="PUNC">(</span><span class="STRN">"utf-8"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>583</span> </span><span class="WHIT">            </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"334 UGFzc3dvcmQ6"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>584</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="KEYW">else</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>585</span> </span><span class="WHIT">            </span><span class="NAME">this.authentication.state</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="STRN">"VERIFYING"</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>586</span> </span><span class="WHIT">            </span><span class="NAME">this.server.emit</span><span class="PUNC">(</span><span class="STRN">"authorizeUser"</span><span class="PUNC">,</span><span class="WHIT"> 
+<span class='line'>587</span>                 </span><span class="NAME">this.envelope</span><span class="PUNC">,</span><span class="WHIT"> 
+<span class='line'>588</span>                 </span><span class="NAME">this.authentication.username</span><span class="PUNC">,</span><span class="WHIT"> 
+<span class='line'>589</span>                 </span><span class="KEYW">new</span><span class="WHIT"> </span><span class="NAME">Buffer</span><span class="PUNC">(</span><span class="NAME">payload</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="STRN">"base64"</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">toString</span><span class="PUNC">(</span><span class="STRN">"utf-8"</span><span class="PUNC">)</span><span class="PUNC">,</span><span class="WHIT"> 
+<span class='line'>590</span>                 </span><span class="PUNC">(</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">success</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>591</span> </span><span class="WHIT">                    </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">err</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="PUNC">!</span><span class="NAME">success</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>592</span> </span><span class="WHIT">                        </span><span class="NAME">this.authentication.authenticated</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">false</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>593</span> </span><span class="WHIT">                        </span><span class="NAME">this.authentication.username</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">false</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>594</span> </span><span class="WHIT">                        </span><span class="NAME">this.authentication.state</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="STRN">"NORMAL"</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>595</span> </span><span class="WHIT">                        </span><span class="KEYW">return</span><span class="WHIT"> </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"535 5.7.8 Error: authentication failed: generic failure"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>596</span> </span><span class="WHIT">                    </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>597</span> </span><span class="WHIT">                    </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"235 2.7.0 Authentication successful"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>598</span> </span><span class="WHIT">                    </span><span class="NAME">this.authentication.authenticated</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">true</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>599</span> </span><span class="WHIT">                    </span><span class="NAME">this.authentication.state</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="STRN">"AUTHENTICATED"</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>600</span> </span><span class="WHIT">                </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">bind</span><span class="PUNC">(</span><span class="KEYW">this</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>601</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>602</span> </span><span class="WHIT">        
+<span class='line'>603</span>     </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>604</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>605</span> 
+<span class='line'>606</span> </span><span class="COMM">/**
+<span class='line'>607</span>  * &lt;p>Emits the data received from the client with &lt;code>'data'&lt;/code>
+<span class='line'>608</span>  * 
+<span class='line'>609</span>  * @event
+<span class='line'>610</span>  * @param {Buffer} chunk Binary data sent by the client on data mode
+<span class='line'>611</span>  */</span><span class="WHIT">
+<span class='line'>612</span> </span><span class="NAME">SMTPServerConnection.prototype._onData</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">chunk</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>613</span> </span><span class="WHIT">    </span><span class="NAME">this.server.emit</span><span class="PUNC">(</span><span class="STRN">"data"</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">this.envelope</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">chunk</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>614</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>615</span> 
+<span class='line'>616</span> </span><span class="COMM">/**
+<span class='line'>617</span>  * &lt;p>If the data stream ends, emit &lt;code>'dataReady'&lt;/code>and wait for
+<span class='line'>618</span>  * the callback.&lt;/p>
+<span class='line'>619</span>  * 
+<span class='line'>620</span>  * @event
+<span class='line'>621</span>  */</span><span class="WHIT">
+<span class='line'>622</span> </span><span class="NAME">SMTPServerConnection.prototype._onDataReady</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>623</span> </span><span class="WHIT">    </span><span class="NAME">this.server.emit</span><span class="PUNC">(</span><span class="STRN">"dataReady"</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">this.envelope</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">code</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>624</span> </span><span class="WHIT">        </span><span class="NAME">this.init</span><span class="PUNC">(</span><span class="KEYW">true</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT"> </span><span class="COMM">//reset state, keep auth data</span><span class="WHIT">
+<span class='line'>625</span> </span><span class="WHIT">        
+<span class='line'>626</span>         </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">err</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>627</span> </span><span class="WHIT">            </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"550 FAILED"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>628</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="KEYW">else</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>629</span> </span><span class="WHIT">            </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"250 2.0.0 Ok: queued as "</span><span class="PUNC">+</span><span class="PUNC">(</span><span class="NAME">code</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="STRN">"FOOBARBAZ"</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>630</span> </span><span class="WHIT">        </span><span class="PUNC">}</span><span class="WHIT">
+<span class='line'>631</span> </span><span class="WHIT">        
+<span class='line'>632</span>     </span><span class="PUNC">}</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">bind</span><span class="PUNC">(</span><span class="KEYW">this</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>633</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>634</span> </span></pre></body></html>

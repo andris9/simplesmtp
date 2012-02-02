@@ -1,0 +1,1158 @@
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="generator" content="JsDoc Toolkit" />
+		<title>SMTPServerConnection | JsDoc Reference</title>
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+		<meta name="mobileoptimized" content="0" />
+	
+		<link rel="stylesheet" href="../css/all.css" media="all" />
+		<link rel="stylesheet" href="../css/handheld.css" media="only screen and (max-width: 660px)" />
+		<link rel="stylesheet" href="../css/handheld.css" media="handheld" />
+		<link rel="stylesheet" href="../css/screen.css" media="screen and (min-width: 661px)" />
+
+		<script src="../javascript/all.js"></script>
+		<!--[if lt IE 9]>
+			<script src="../javascript/html5.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+<div class="index">
+	<div class="menu">
+		<div class="indexLinks">
+			<a href="../index.html">Classes</a>
+			<a href="../files.html">Files</a>
+		</div>
+	
+		<h2 class="heading1">Classes</h2>
+		
+		<input type="text" name="classFilter" class="classFilter" id="ClassFilter" placeholder="Filter"></input>
+		
+		<nav>
+			<ul class="classList" id="ClassList">
+				
+					<li><a href="../symbols/_global_.html">_global_</a></li>
+				
+					<li><a href="../symbols/SMTPClient.html">SMTPClient</a></li>
+				
+					<li><a href="../symbols/SMTPServer.html">SMTPServer</a></li>
+				
+					<li><a href="../symbols/SMTPServerConnection.html">SMTPServerConnection</a></li>
+				
+					<li><a href="../symbols/starttls.html">starttls</a></li>
+				
+			</ul>
+		</nav>
+	</div>
+	<div class="fineprint" style="clear:both">
+		<footer>
+			
+			Documentation generator: <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0<br />
+			Template: <a href="http://www.thebrightlines.com/2010/05/06/new-template-for-jsdoctoolkit-codeview/" target="_blank">Codeview</a> 1.2<br />
+			Generated on:
+			<time datetime='2012-1-2' pubdate>2012-1-2 12:10</time>
+		</footer>
+	</div>
+</div>
+
+<div class="index indexStatic"></div>
+
+<div class="content">
+	<div class="innerContent">
+		<article>
+			<header>
+				<h1 class="classTitle">
+					
+					Class <span>SMTPServerConnection</span>
+				</h1>
+				
+				<div class="intro">
+					<p class="description summary">
+						
+					</p>
+						
+					
+						<ul class="summary">
+							
+							
+							
+								<li>Defined in: <a href="../symbols/src/SMTP_lib_server.js.html">server.js</a></li>
+							
+							
+						</ul>
+					
+				</div>
+			</header>
+			
+			
+				<section>
+					<div class="props">
+						<table class="summaryTable" cellspacing="0" summary="A summary of the constructor documented in the class SMTPServerConnection.">
+							<caption class="sectionTitle">Class Summary</caption>
+							<thead>
+								<tr>
+									<th scope="col">Constructor Attributes</th>
+									<th scope="col">Constructor Name and Description</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td class="attributes">&nbsp;</td>
+									<td class="nameDescription" >
+										<div class="fixedFont">
+											<b><a href="../symbols/SMTPServerConnection.html#constructor">SMTPServerConnection</a></b>(server, client)
+										</div>
+										<div class="description"><p>Sets up a handler for the connected client</p>
+
+<p>Restarts the state and sets up event listeners for client actions</p></div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</section>
+			
+			
+			
+	<!--
+	#### METHODS SUMMARY
+	-->
+			
+				<section>
+					
+					
+					<div class="props">
+						<h2 class="sectionTitle">Method Summary</h2>
+						
+						
+							<nav>
+								<table class="summaryTable" id="MethodsList" cellspacing="0" summary="A summary of the methods documented in the class SMTPServerConnection.">
+									<thead>
+										<tr>
+											<th scope="col">Method Attributes</th>
+											<th scope="col">Method Name and Description</th>
+										</tr>
+									</thead>
+									
+									<tbody>
+										
+										
+											<tr
+												 class='item0'
+											>
+												<td class="attributes">&lt;private&gt; &nbsp;</td>
+												<td class="nameDescription">
+													<div class="fixedFont"><b><a href="../symbols/SMTPServerConnection.html#_handleAuthLogin">_handleAuthLogin</a></b>(payload)
+													</div>
+													<div class="description"><p>Sets authorization state to "AUTHENTICATING" and reuqests for the
+username and password from the client</p>
+
+<p>If username and password are set initiate authentication
+by emitting <code>'authorizeUser'</code> and waiting for its callback</p></div>
+												</td>
+											</tr>
+										
+											<tr
+												 class='item1'
+											>
+												<td class="attributes">&lt;private&gt; &nbsp;</td>
+												<td class="nameDescription">
+													<div class="fixedFont"><b><a href="../symbols/SMTPServerConnection.html#_handleAuthPlain">_handleAuthPlain</a></b>(payload)
+													</div>
+													<div class="description"><p>Detect login information from the payload and initiate authentication
+by emitting <code>'authorizeUser'</code> and waiting for its callback</p></div>
+												</td>
+											</tr>
+										
+											<tr
+												 class='item2'
+											>
+												<td class="attributes">&lt;private&gt; &nbsp;</td>
+												<td class="nameDescription">
+													<div class="fixedFont"><b><a href="../symbols/SMTPServerConnection.html#_onCommandAUTH">_onCommandAUTH</a></b>(payload)
+													</div>
+													<div class="description"><p>If the server is in secure connection mode, start the authentication
+process.</div>
+												</td>
+											</tr>
+										
+											<tr
+												 class='item3'
+											>
+												<td class="attributes">&lt;private&gt; &nbsp;</td>
+												<td class="nameDescription">
+													<div class="fixedFont"><b><a href="../symbols/SMTPServerConnection.html#_onCommandDATA">_onCommandDATA</a></b>()
+													</div>
+													<div class="description"><p>Switch to data mode and starts waiting for a binary data stream.</div>
+												</td>
+											</tr>
+										
+											<tr
+												 class='item4'
+											>
+												<td class="attributes">&lt;private&gt; &nbsp;</td>
+												<td class="nameDescription">
+													<div class="fixedFont"><b><a href="../symbols/SMTPServerConnection.html#_onCommandEHLO">_onCommandEHLO</a></b>(host)
+													</div>
+													<div class="description"><p>Retrieve hostname from the client.</div>
+												</td>
+											</tr>
+										
+											<tr
+												 class='item5'
+											>
+												<td class="attributes">&lt;private&gt; &nbsp;</td>
+												<td class="nameDescription">
+													<div class="fixedFont"><b><a href="../symbols/SMTPServerConnection.html#_onCommandHELO">_onCommandHELO</a></b>(host)
+													</div>
+													<div class="description"><p>Retrieve hostname from the client.</div>
+												</td>
+											</tr>
+										
+											<tr
+												 class='item6'
+											>
+												<td class="attributes">&lt;private&gt; &nbsp;</td>
+												<td class="nameDescription">
+													<div class="fixedFont"><b><a href="../symbols/SMTPServerConnection.html#_onCommandMAIL">_onCommandMAIL</a></b>(mail)
+													</div>
+													<div class="description"><p>Initiate an e-mail by defining a sender.</div>
+												</td>
+											</tr>
+										
+											<tr
+												 class='item7'
+											>
+												<td class="attributes">&lt;private&gt; &nbsp;</td>
+												<td class="nameDescription">
+													<div class="fixedFont"><b><a href="../symbols/SMTPServerConnection.html#_onCommandRCPT">_onCommandRCPT</a></b>(mail)
+													</div>
+													<div class="description"><p>Add recipients to the e-mail envelope</p>
+
+<p>This doesn't work if <code>MAIL</code> command is not yet executed</p>
+
+<p>If <code>validateRecipients</code> option is set to true, then emits
+<code>'validateRecipient'</code> and wait for the callback before moving
+on</p></div>
+												</td>
+											</tr>
+										
+											<tr
+												 class='item8'
+											>
+												<td class="attributes">&lt;private&gt; &nbsp;</td>
+												<td class="nameDescription">
+													<div class="fixedFont"><b><a href="../symbols/SMTPServerConnection.html#_onCommandRSET">_onCommandRSET</a></b>()
+													</div>
+													<div class="description"><p>Resets the current state - e-mail data and authentication info</p></div>
+												</td>
+											</tr>
+										
+											<tr
+												 class='item9'
+											>
+												<td class="attributes">&lt;private&gt; &nbsp;</td>
+												<td class="nameDescription">
+													<div class="fixedFont"><b><a href="../symbols/SMTPServerConnection.html#_onCommandSTARTTLS">_onCommandSTARTTLS</a></b>()
+													</div>
+													<div class="description"><p>Upgrade the connection to a secure TLS connection</p></div>
+												</td>
+											</tr>
+										
+											<tr
+												 class='item10'
+											>
+												<td class="attributes">&nbsp;</td>
+												<td class="nameDescription">
+													<div class="fixedFont"><b><a href="../symbols/SMTPServerConnection.html#end">end</a></b>(message)
+													</div>
+													<div class="description"><p>Sends a message to the client and closes the connection</p></div>
+												</td>
+											</tr>
+										
+											<tr
+												 class='item11'
+											>
+												<td class="attributes">&nbsp;</td>
+												<td class="nameDescription">
+													<div class="fixedFont"><b><a href="../symbols/SMTPServerConnection.html#init">init</a></b>(keepAuthData)
+													</div>
+													<div class="description"><p>Reset the envelope state</p>
+
+<p>If <code>keepAuthData</code> is set to true, then doesn't remove
+authentication data</p></div>
+												</td>
+											</tr>
+										
+									</tbody>
+								</table>
+							</nav>
+						
+					
+						
+					</div>
+				</section>
+			
+			
+	<!--
+	#### EVENTS SUMMARY
+	-->
+			
+				
+				<section>
+					
+						<nav>
+							<div class="props">
+								<table class="summaryTable" cellspacing="0" summary="A summary of the events documented in the class SMTPServerConnection.">
+									<caption class="sectionTitle">Event Summary</caption>
+									
+									<thead>
+										<tr>
+											<th scope="col">Event Attributes</th>
+											<th scope="col">Event Name and Description</th>
+										</tr>
+									</thead>
+									
+									<tbody>
+										
+											<tr>
+												<td class="attributes">&lt;private&gt; &nbsp;</td>
+												<td class="nameDescription">
+													<div class="fixedFont"><b><a href="../symbols/SMTPServerConnection.html#event:_onCommand">_onCommand</a></b>(command, command)
+													</div>
+													<div class="description"><p>Will be called when a command is received from the client</p>
+
+<p>If there's curently an authentication process going on, route
+the data to <code>_handleAuthLogin</code>, otherwise act as
+defined</p></div>
+												</td>
+											</tr>
+										
+											<tr>
+												<td class="attributes">&lt;private&gt; &nbsp;</td>
+												<td class="nameDescription">
+													<div class="fixedFont"><b><a href="../symbols/SMTPServerConnection.html#event:_onData">_onData</a></b>(chunk)
+													</div>
+													<div class="description"><p>Emits the data received from the client with <code>'data'</code></div>
+												</td>
+											</tr>
+										
+											<tr>
+												<td class="attributes">&lt;private&gt; &nbsp;</td>
+												<td class="nameDescription">
+													<div class="fixedFont"><b><a href="../symbols/SMTPServerConnection.html#event:_onDataReady">_onDataReady</a></b>()
+													</div>
+													<div class="description"><p>If the data stream ends, emit <code>'dataReady'</code>and wait for
+the callback.</div>
+												</td>
+											</tr>
+										
+											<tr>
+												<td class="attributes">&lt;private&gt; &nbsp;</td>
+												<td class="nameDescription">
+													<div class="fixedFont"><b><a href="../symbols/SMTPServerConnection.html#event:_onEnd">_onEnd</a></b>()
+													</div>
+													<div class="description"><p>Will be called when the connection to the client is closed</p></div>
+												</td>
+											</tr>
+										
+											<tr>
+												<td class="attributes">&lt;private&gt; &nbsp;</td>
+												<td class="nameDescription">
+													<div class="fixedFont"><b><a href="../symbols/SMTPServerConnection.html#event:_onError">_onError</a></b>()
+													</div>
+													<div class="description"><p>Will be called when an error occurs</p></div>
+												</td>
+											</tr>
+										
+											<tr>
+												<td class="attributes">&lt;private&gt; &nbsp;</td>
+												<td class="nameDescription">
+													<div class="fixedFont"><b><a href="../symbols/SMTPServerConnection.html#event:_onTimeout">_onTimeout</a></b>()
+													</div>
+													<div class="description"><p>Will be called when timeout occurs</p></div>
+												</td>
+											</tr>
+										
+									</tbody>
+								</table>
+							</div>
+						</nav>
+					
+					
+					
+				</section>
+			
+	<!--
+	#### CONSTRUCTOR DETAILS
+	-->
+			
+				<section>
+					<div class="details props">
+						<div class="innerProps">
+							<h2 class="sectionTitle" id="constructor">
+								Class Detail
+							</h2>
+							
+							<div class="fixedFont">
+								<b>SMTPServerConnection</b>(server, client)
+							</div>
+							
+							<div class="description">
+								<p>Sets up a handler for the connected client</p>
+
+<p>Restarts the state and sets up event listeners for client actions</p>
+								
+							</div>
+							
+							
+						
+							
+								<dl class="detailList params">
+									<dt class="heading">Parameters:</dt>
+									
+										<dt>
+											<span class="light fixedFont">{Object}</span>  <b>server</b>
+											
+										</dt>
+										<dd><a href="../symbols/SMTPServer.html">SMTPServer</a> instance</dd>
+									
+										<dt>
+											<span class="light fixedFont">{Object}</span>  <b>client</b>
+											
+										</dt>
+										<dd>RAISocket instance for the client</dd>
+									
+								</dl>
+							
+							
+							
+						</div>
+					</div>
+				</section>
+			
+	<!--
+	#### FIELD DETAILS
+	-->
+			
+	<!--
+	#### METHOD DETAILS
+	-->		
+			
+				<section>
+					<div class="details props">
+						<div class="innerProps">
+							<h2 class="sectionTitle">
+								Method Detail
+							</h2>
+							
+							<ul class="methodDetail" id="MethodDetail">
+								
+								
+									<li 
+										 class='item0'
+									>
+										<div class="fixedFont heading" id="_handleAuthLogin">
+											<span class='lighter'>
+											&lt;private&gt; 
+											</span>
+											
+											
+											
+											<b>_handleAuthLogin</b>(payload)
+										</div>
+										
+										<div class="description">
+											<p>Sets authorization state to "AUTHENTICATING" and reuqests for the
+username and password from the client</p>
+
+<p>If username and password are set initiate authentication
+by emitting <code>'authorizeUser'</code> and waiting for its callback</p>
+											
+											
+											
+											
+										</div>
+										
+										
+										
+										
+											<dl class="detailList params">
+												<dt class="heading">Parameters:</dt>
+												
+													<dt>
+														<span class="light fixedFont">{Buffer}</span> <b>payload</b>
+														
+													</dt>
+													<dd>AUTH LOGIN login information</dd>
+												
+											</dl>
+										
+										
+										
+										<div class="hr"></div>
+									</li>
+								
+									<li 
+										 class='item1'
+									>
+										<div class="fixedFont heading" id="_handleAuthPlain">
+											<span class='lighter'>
+											&lt;private&gt; 
+											</span>
+											
+											
+											
+											<b>_handleAuthPlain</b>(payload)
+										</div>
+										
+										<div class="description">
+											<p>Detect login information from the payload and initiate authentication
+by emitting <code>'authorizeUser'</code> and waiting for its callback</p>
+											
+											
+											
+											
+										</div>
+										
+										
+										
+										
+											<dl class="detailList params">
+												<dt class="heading">Parameters:</dt>
+												
+													<dt>
+														<span class="light fixedFont">{Buffer}</span> <b>payload</b>
+														
+													</dt>
+													<dd>AUTH PLAIN login information</dd>
+												
+											</dl>
+										
+										
+										
+										<div class="hr"></div>
+									</li>
+								
+									<li 
+										 class='item2'
+									>
+										<div class="fixedFont heading" id="_onCommandAUTH">
+											<span class='lighter'>
+											&lt;private&gt; 
+											</span>
+											
+											
+											
+											<b>_onCommandAUTH</b>(payload)
+										</div>
+										
+										<div class="description">
+											<p>If the server is in secure connection mode, start the authentication
+process. Param <code>payload</code> defines the authentication mechanism.</p>
+
+<p>Currently supported - PLAIN and LOGIN. There is no need for more
+complicated mechanisms (different CRAM versions etc.) since authentication
+is only done in secure connection mode</p>
+											
+											
+											
+											
+										</div>
+										
+										
+										
+										
+											<dl class="detailList params">
+												<dt class="heading">Parameters:</dt>
+												
+													<dt>
+														<span class="light fixedFont">{Buffer}</span> <b>payload</b>
+														
+													</dt>
+													<dd>Defines the authentication mechanism</dd>
+												
+											</dl>
+										
+										
+										
+										<div class="hr"></div>
+									</li>
+								
+									<li 
+										 class='item3'
+									>
+										<div class="fixedFont heading" id="_onCommandDATA">
+											<span class='lighter'>
+											&lt;private&gt; 
+											</span>
+											
+											
+											
+											<b>_onCommandDATA</b>()
+										</div>
+										
+										<div class="description">
+											<p>Switch to data mode and starts waiting for a binary data stream. Emits
+<code>'startData'</code>.</p>
+
+<p>If <code>RCPT</code> is not yet run, stop</p>
+											
+											
+											
+											
+										</div>
+										
+										
+										
+										
+										
+										
+										<div class="hr"></div>
+									</li>
+								
+									<li 
+										 class='item4'
+									>
+										<div class="fixedFont heading" id="_onCommandEHLO">
+											<span class='lighter'>
+											&lt;private&gt; 
+											</span>
+											
+											
+											
+											<b>_onCommandEHLO</b>(host)
+										</div>
+										
+										<div class="description">
+											<p>Retrieve hostname from the client. Not very important, since client
+IP is already known and the client can send fake data</p>
+
+<p>Additionally displays server capability list to the client</p>
+											
+											
+											
+											
+										</div>
+										
+										
+										
+										
+											<dl class="detailList params">
+												<dt class="heading">Parameters:</dt>
+												
+													<dt>
+														<span class="light fixedFont">{String}</span> <b>host</b>
+														
+													</dt>
+													<dd>Hostname of the client</dd>
+												
+											</dl>
+										
+										
+										
+										<div class="hr"></div>
+									</li>
+								
+									<li 
+										 class='item5'
+									>
+										<div class="fixedFont heading" id="_onCommandHELO">
+											<span class='lighter'>
+											&lt;private&gt; 
+											</span>
+											
+											
+											
+											<b>_onCommandHELO</b>(host)
+										</div>
+										
+										<div class="description">
+											<p>Retrieve hostname from the client. Not very important, since client
+IP is already known and the client can send fake data</p>
+											
+											
+											
+											
+										</div>
+										
+										
+										
+										
+											<dl class="detailList params">
+												<dt class="heading">Parameters:</dt>
+												
+													<dt>
+														<span class="light fixedFont">{String}</span> <b>host</b>
+														
+													</dt>
+													<dd>Hostname of the client</dd>
+												
+											</dl>
+										
+										
+										
+										<div class="hr"></div>
+									</li>
+								
+									<li 
+										 class='item6'
+									>
+										<div class="fixedFont heading" id="_onCommandMAIL">
+											<span class='lighter'>
+											&lt;private&gt; 
+											</span>
+											
+											
+											
+											<b>_onCommandMAIL</b>(mail)
+										</div>
+										
+										<div class="description">
+											<p>Initiate an e-mail by defining a sender.</p>
+
+<p>This doesn't work if authorization is required but the client is
+not logged in yet.</p>
+
+<p>If <code>validateSender</code> option is set to true, then emits
+<code>'validateSender'</code> and wait for the callback before moving
+on</p>
+											
+											
+											
+											
+										</div>
+										
+										
+										
+										
+											<dl class="detailList params">
+												<dt class="heading">Parameters:</dt>
+												
+													<dt>
+														<span class="light fixedFont">{String}</span> <b>mail</b>
+														
+													</dt>
+													<dd>Address payload in the form of "FROM:&lt;address&gt;"</dd>
+												
+											</dl>
+										
+										
+										
+										<div class="hr"></div>
+									</li>
+								
+									<li 
+										 class='item7'
+									>
+										<div class="fixedFont heading" id="_onCommandRCPT">
+											<span class='lighter'>
+											&lt;private&gt; 
+											</span>
+											
+											
+											
+											<b>_onCommandRCPT</b>(mail)
+										</div>
+										
+										<div class="description">
+											<p>Add recipients to the e-mail envelope</p>
+
+<p>This doesn't work if <code>MAIL</code> command is not yet executed</p>
+
+<p>If <code>validateRecipients</code> option is set to true, then emits
+<code>'validateRecipient'</code> and wait for the callback before moving
+on</p>
+											
+											
+											
+											
+										</div>
+										
+										
+										
+										
+											<dl class="detailList params">
+												<dt class="heading">Parameters:</dt>
+												
+													<dt>
+														<span class="light fixedFont">{String}</span> <b>mail</b>
+														
+													</dt>
+													<dd>Address payload in the form of "TO:&lt;address&gt;"</dd>
+												
+											</dl>
+										
+										
+										
+										<div class="hr"></div>
+									</li>
+								
+									<li 
+										 class='item8'
+									>
+										<div class="fixedFont heading" id="_onCommandRSET">
+											<span class='lighter'>
+											&lt;private&gt; 
+											</span>
+											
+											
+											
+											<b>_onCommandRSET</b>()
+										</div>
+										
+										<div class="description">
+											<p>Resets the current state - e-mail data and authentication info</p>
+											
+											
+											
+											
+										</div>
+										
+										
+										
+										
+										
+										
+										<div class="hr"></div>
+									</li>
+								
+									<li 
+										 class='item9'
+									>
+										<div class="fixedFont heading" id="_onCommandSTARTTLS">
+											<span class='lighter'>
+											&lt;private&gt; 
+											</span>
+											
+											
+											
+											<b>_onCommandSTARTTLS</b>()
+										</div>
+										
+										<div class="description">
+											<p>Upgrade the connection to a secure TLS connection</p>
+											
+											
+											
+											
+										</div>
+										
+										
+										
+										
+										
+										
+										<div class="hr"></div>
+									</li>
+								
+									<li 
+										 class='item10'
+									>
+										<div class="fixedFont heading" id="end">
+											<span class='lighter'>
+											
+											</span>
+											
+											
+											
+											<b>end</b>(message)
+										</div>
+										
+										<div class="description">
+											<p>Sends a message to the client and closes the connection</p>
+											
+											
+											
+											
+										</div>
+										
+										
+										
+										
+											<dl class="detailList params">
+												<dt class="heading">Parameters:</dt>
+												
+													<dt>
+														<span class="light fixedFont">{String}</span> <b>message</b>
+														<i>Optional</i>
+													</dt>
+													<dd>if set, send it to the client before disconnecting</dd>
+												
+											</dl>
+										
+										
+										
+										<div class="hr"></div>
+									</li>
+								
+									<li 
+										 class='item11'
+									>
+										<div class="fixedFont heading" id="init">
+											<span class='lighter'>
+											
+											</span>
+											
+											
+											
+											<b>init</b>(keepAuthData)
+										</div>
+										
+										<div class="description">
+											<p>Reset the envelope state</p>
+
+<p>If <code>keepAuthData</code> is set to true, then doesn't remove
+authentication data</p>
+											
+											
+											
+											
+										</div>
+										
+										
+										
+										
+											<dl class="detailList params">
+												<dt class="heading">Parameters:</dt>
+												
+													<dt>
+														<span class="light fixedFont">{Boolean}</span> <b>keepAuthData</b>
+														<i>Optional, Default: false</i>
+													</dt>
+													<dd>If set to true keep authentication data</dd>
+												
+											</dl>
+										
+										
+										
+										
+									</li>
+								
+							</ul>
+						</div>
+					</div>
+				</section>
+			
+			
+	<!--
+	#### EVENT DETAILS
+	-->		
+			
+				<section>
+					<div class="details props">
+						<div class="innerProps">
+							<h2 class="sectionTitle">
+								Event Detail
+							</h2>
+							
+							
+								<div class="fixedFont heading" id="event:_onCommand">
+									<span class='lighter'>
+									&lt;private&gt; 
+									</span>
+									
+									
+									
+									<b>_onCommand</b>(command, command)
+								</div>
+								
+								<div class="description">
+									<p>Will be called when a command is received from the client</p>
+
+<p>If there's curently an authentication process going on, route
+the data to <code>_handleAuthLogin</code>, otherwise act as
+defined</p>
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{String}</span> <b>command</b>
+												
+											</dt>
+											<dd>Command</dd>
+										
+											<dt>
+												<span class="light fixedFont">{Buffer}</span> <b>command</b>
+												
+											</dt>
+											<dd>Payload related to the command</dd>
+										
+									</dl>
+								
+								
+								
+								
+								<div class="hr"></div>
+							
+								<div class="fixedFont heading" id="event:_onData">
+									<span class='lighter'>
+									&lt;private&gt; 
+									</span>
+									
+									
+									
+									<b>_onData</b>(chunk)
+								</div>
+								
+								<div class="description">
+									<p>Emits the data received from the client with <code>'data'</code>
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+									<dl class="detailList params">
+										<dt class="heading">Parameters:</dt>
+										
+											<dt>
+												<span class="light fixedFont">{Buffer}</span> <b>chunk</b>
+												
+											</dt>
+											<dd>Binary data sent by the client on data mode</dd>
+										
+									</dl>
+								
+								
+								
+								
+								<div class="hr"></div>
+							
+								<div class="fixedFont heading" id="event:_onDataReady">
+									<span class='lighter'>
+									&lt;private&gt; 
+									</span>
+									
+									
+									
+									<b>_onDataReady</b>()
+								</div>
+								
+								<div class="description">
+									<p>If the data stream ends, emit <code>'dataReady'</code>and wait for
+the callback.</p>
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+								
+								
+								
+								<div class="hr"></div>
+							
+								<div class="fixedFont heading" id="event:_onEnd">
+									<span class='lighter'>
+									&lt;private&gt; 
+									</span>
+									
+									
+									
+									<b>_onEnd</b>()
+								</div>
+								
+								<div class="description">
+									<p>Will be called when the connection to the client is closed</p>
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+								
+								
+								
+								<div class="hr"></div>
+							
+								<div class="fixedFont heading" id="event:_onError">
+									<span class='lighter'>
+									&lt;private&gt; 
+									</span>
+									
+									
+									
+									<b>_onError</b>()
+								</div>
+								
+								<div class="description">
+									<p>Will be called when an error occurs</p>
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+								
+								
+								
+								<div class="hr"></div>
+							
+								<div class="fixedFont heading" id="event:_onTimeout">
+									<span class='lighter'>
+									&lt;private&gt; 
+									</span>
+									
+									
+									
+									<b>_onTimeout</b>()
+								</div>
+								
+								<div class="description">
+									<p>Will be called when timeout occurs</p>
+									
+									
+									
+									
+								</div>
+								
+								
+								
+								
+								
+								
+								
+								
+							
+						</div>
+					</div>
+				</section>
+			
+		</article>
+	</div>
+</div>
+
+		<script type="text/javascript">
+			wbos.CssTools.MediaQueryFallBack.LoadCss('../css/screen.css', '../css/handheld.css', 660)
+			codeview.classFilter.Init()
+		</script>
+	</body>
+</html>
+
