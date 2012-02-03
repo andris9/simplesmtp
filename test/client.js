@@ -26,7 +26,7 @@ exports["General tests"] = {
     "Connect and setup": function(test){
         var client = simplesmtp.connect(PORT_NUMBER, false, {});
         
-        client.on("idle", function(){
+        client.once("idle", function(){
             // Client is ready to take messages
             test.ok(true);
             client.close();
@@ -66,7 +66,7 @@ exports["Secure server"] = {
             secureConnection: true
         });
         
-        client.on("idle", function(){
+        client.once("idle", function(){
             // Client is ready to take messages
             test.ok(true);
             client.close();
@@ -102,7 +102,7 @@ exports["Disabled EHLO"] = {
     "Connect and setup": function(test){
         var client = simplesmtp.connect(PORT_NUMBER, false, {});
         
-        client.on("idle", function(){
+        client.once("idle", function(){
             // Client is ready to take messages
             test.ok(true);
             client.close();
@@ -150,7 +150,7 @@ exports["Authentication needed"] = {
             }
         });
         
-        client.on("idle", function(){
+        client.once("idle", function(){
             // Client is ready to take messages
             test.ok(true);
             client.close();
@@ -173,7 +173,7 @@ exports["Authentication needed"] = {
             }
         });
         
-        client.on("idle", function(){
+        client.once("idle", function(){
             // Client is ready to take messages
             test.ok(false); // should not occur
             client.close();
@@ -228,7 +228,7 @@ exports["Message tests"] = {
         
         var client = simplesmtp.connect(PORT_NUMBER, false, {});
         
-        client.on("idle", function(){
+        client.once("idle", function(){
             // Client is ready to take messages
             test.ok(true); // waiting for envelope
             
@@ -261,7 +261,7 @@ exports["Message tests"] = {
         
         var client = simplesmtp.connect(PORT_NUMBER, false, {});
         
-        client.on("idle", function(){
+        client.once("idle", function(){
             // Client is ready to take messages
             test.ok(true); // waiting for envelope
             
@@ -294,7 +294,7 @@ exports["Message tests"] = {
         
         var client = simplesmtp.connect(PORT_NUMBER, false, {});
         
-        client.on("idle", function(){
+        client.once("idle", function(){
             // Client is ready to take messages
             test.ok(true); // waiting for envelope
             
@@ -327,7 +327,7 @@ exports["Message tests"] = {
         
         var client = simplesmtp.connect(PORT_NUMBER, false, {});
         
-        client.on("idle", function(){
+        client.once("idle", function(){
             // Client is ready to take messages
             test.ok(true); // waiting for envelope
             
@@ -365,7 +365,7 @@ exports["Message tests"] = {
         
         var client = simplesmtp.connect(PORT_NUMBER, false, {});
         
-        client.on("idle", function(){
+        client.once("idle", function(){
             // Client is ready to take messages
             test.ok(true); // waiting for envelope
             
@@ -405,7 +405,7 @@ exports["Message tests"] = {
         
         var client = simplesmtp.connect(PORT_NUMBER, false, {});
         
-        client.on("idle", function(){
+        client.once("idle", function(){
             // Client is ready to take messages
             test.ok(true); // waiting for envelope
             

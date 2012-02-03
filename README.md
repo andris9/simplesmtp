@@ -108,7 +108,8 @@ This includes a string `from` and an array of strings `to` property.
 
 Envelope can be sent with `client.useEnvelope(envelope)`
 
-    client.on("idle", function(){
+    // run only once as 'idle' is emitted again after message delivery
+    client.once("idle", function(){
         client.useEnvelope({
             from: "me@example.com",
             to: ["receiver1@example.com", "receiver2@example.com"]
