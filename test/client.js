@@ -398,6 +398,46 @@ exports["Message tests"] = {
         client.on("end", function(){
             test.done();
         });
+    },
+    
+    "Stream message": function(test){
+        test.expect(3);
+        
+        var client = simplesmtp.connect(PORT_NUMBER, false, {});
+        
+        client.on("idle", function(){
+            // Client is ready to take messages
+            test.ok(true); // waiting for envelope
+            
+            client.useEnvelope({
+                from: "test@node.ee",
+                to: [
+                    "test1@node.ee",
+                    "test2@node.ee"
+                ]
+            });
+        });
+        
+        client.on("message", function(){
+            // Client is ready to take messages
+            test.ok(true); // waiting for message
+            
+            // pipe file to client
+            fs.createReadStream(__dirname+"/testmessage.eml").pipe(client);
+        });
+        
+        client.on("ready", function(success){
+            test.ok(success);
+            client.close();
+        });
+        
+        client.on("error", function(err){
+            test.ok(false);
+        });
+        
+        client.on("end", function(){
+            test.done();
+        });
     }
     
 }
