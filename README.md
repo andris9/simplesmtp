@@ -20,7 +20,7 @@ And start listening on selected port
     
 SMTP options can include the following:
 
-  * **HOSTNAME** - the hostname of the server, will be used for informational messages
+  * **name** - the hostname of the server, will be used for informational messages
   * **debug** - if set to true, print out messages about the connection
   * **timeout** - client timeout in milliseconds, defaults to 60 000 (60 sec.)
   * **secureConnection** - start a server on secure connection

@@ -10,7 +10,7 @@ exports["General tests"] = {
         
         this.smtp = new simplesmtp.createServer({
             SMTPBanner: "SCORPIO",
-            HOSTNAME: "MYRDO",
+            name: "MYRDO",
             maxSize: 1234
         });
         this.smtp.listen(PORT_NUMBER, function(err){
@@ -126,14 +126,14 @@ exports["General tests"] = {
             });
         });
     },
-    "HELO HOSTNAME": function(test){
+    "HELO name": function(test){
         var cmds = ["HELO FOO"];
         runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
             test.equal("MYRDO",resp.toString("utf-8").trim().substr(4).split(" ").shift());
             test.done();
         });
     },
-    "EHLO HOSTNAME": function(test){
+    "EHLO name": function(test){
         var cmds = ["EHLO FOO"];
         runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
             test.equal("MYRDO",resp.toString("utf-8").trim().substr(4).split(" ").shift());
