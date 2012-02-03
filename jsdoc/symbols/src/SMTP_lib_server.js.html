@@ -29,7 +29,7 @@
 <span class='line'> 22</span>  * &lt;p>Possible options are:&lt;/p>
 <span class='line'> 23</span>  * 
 <span class='line'> 24</span>  * &lt;ul>
-<span class='line'> 25</span>  *     &lt;li>&lt;b>HOSTNAME&lt;/b> - the hostname of the server, will be used for
+<span class='line'> 25</span>  *     &lt;li>&lt;b>name&lt;/b> - the hostname of the server, will be used for
 <span class='line'> 26</span>  *         informational messages&lt;/li>
 <span class='line'> 27</span>  *     &lt;li>&lt;b>debug&lt;/b> - if set to true, print out messages about the connection&lt;/li>
 <span class='line'> 28</span>  *     &lt;li>&lt;b>timeout&lt;/b> - client timeout in milliseconds, defaults to 60 000&lt;/li>
@@ -57,7 +57,7 @@
 <span class='line'> 50</span> </span><span class="WHIT">    </span><span class="NAME">EventEmitter.call</span><span class="PUNC">(</span><span class="KEYW">this</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
 <span class='line'> 51</span> </span><span class="WHIT">    
 <span class='line'> 52</span>     </span><span class="NAME">this.options</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">options</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="TOKN"> </span><span class="PUNC">{</span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
-<span class='line'> 53</span> </span><span class="WHIT">    </span><span class="NAME">this.options.HOSTNAME</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">this.options.HOSTNAME</span><span class="TOKN"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">oslib.hostname</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT"> </span><span class="NAME">oslib.hostname</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT">
+<span class='line'> 53</span> </span><span class="WHIT">    </span><span class="NAME">this.options.name</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">this.options.name</span><span class="TOKN"> </span><span class="PUNC">||</span><span class="WHIT"> </span><span class="PUNC">(</span><span class="NAME">oslib.hostname</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT"> </span><span class="NAME">oslib.hostname</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT">
 <span class='line'> 54</span> </span><span class="WHIT">               </span><span class="PUNC">(</span><span class="NAME">oslib.getHostname</span><span class="WHIT"> </span><span class="PUNC">&&</span><span class="WHIT"> </span><span class="NAME">oslib.getHostname</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="WHIT">
 <span class='line'> 55</span> </span><span class="WHIT">               </span><span class="STRN">"127.0.0.1"</span><span class="PUNC">;</span><span class="WHIT">
 <span class='line'> 56</span> 
@@ -137,7 +137,7 @@
 <span class='line'>130</span> </span><span class="WHIT">    </span><span class="NAME">this.client.on</span><span class="PUNC">(</span><span class="STRN">"ready"</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="NAME">this._onDataReady.bind</span><span class="PUNC">(</span><span class="KEYW">this</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
 <span class='line'>131</span> </span><span class="WHIT">    
 <span class='line'>132</span>     </span><span class="COMM">// Send the greeting banner</span><span class="WHIT">
-<span class='line'>133</span> </span><span class="WHIT">    </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"220 "</span><span class="PUNC">+</span><span class="NAME">this.server.options.HOSTNAME</span><span class="PUNC">+</span><span class="STRN">" "</span><span class="PUNC">+</span><span class="PUNC">(</span><span class="NAME">this.server.options.SMTPBanner</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="TOKN"> </span><span class="STRN">"ESMTP node.js simplesmtp"</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>133</span> </span><span class="WHIT">    </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"220 "</span><span class="PUNC">+</span><span class="NAME">this.server.options.name</span><span class="PUNC">+</span><span class="STRN">" "</span><span class="PUNC">+</span><span class="PUNC">(</span><span class="NAME">this.server.options.SMTPBanner</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="TOKN"> </span><span class="STRN">"ESMTP node.js simplesmtp"</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
 <span class='line'>134</span> </span><span class="PUNC">}</span><span class="WHIT">
 <span class='line'>135</span> 
 <span class='line'>136</span> </span><span class="COMM">/**
@@ -197,7 +197,7 @@
 <span class='line'>190</span>  * @event
 <span class='line'>191</span>  */</span><span class="WHIT">
 <span class='line'>192</span> </span><span class="NAME">SMTPServerConnection.prototype._onTimeout</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
-<span class='line'>193</span> </span><span class="WHIT">    </span><span class="NAME">this.end</span><span class="PUNC">(</span><span class="STRN">"421 4.4.2 "</span><span class="PUNC">+</span><span class="NAME">this.server.options.HOSTNAME</span><span class="PUNC">+</span><span class="STRN">" Error: timeout exceeded"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>193</span> </span><span class="WHIT">    </span><span class="NAME">this.end</span><span class="PUNC">(</span><span class="STRN">"421 4.4.2 "</span><span class="PUNC">+</span><span class="NAME">this.server.options.name</span><span class="PUNC">+</span><span class="STRN">" Error: timeout exceeded"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
 <span class='line'>194</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
 <span class='line'>195</span> 
 <span class='line'>196</span> </span><span class="COMM">/**
@@ -206,7 +206,7 @@
 <span class='line'>199</span>  * @event
 <span class='line'>200</span>  */</span><span class="WHIT">
 <span class='line'>201</span> </span><span class="NAME">SMTPServerConnection.prototype._onError</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
-<span class='line'>202</span> </span><span class="WHIT">    </span><span class="NAME">this.end</span><span class="PUNC">(</span><span class="STRN">"421 4.4.2 "</span><span class="PUNC">+</span><span class="NAME">this.server.options.HOSTNAME</span><span class="PUNC">+</span><span class="STRN">" Error: client error"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'>202</span> </span><span class="WHIT">    </span><span class="NAME">this.end</span><span class="PUNC">(</span><span class="STRN">"421 4.4.2 "</span><span class="PUNC">+</span><span class="NAME">this.server.options.name</span><span class="PUNC">+</span><span class="STRN">" Error: client error"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
 <span class='line'>203</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
 <span class='line'>204</span> 
 <span class='line'>205</span> </span><span class="COMM">/**
@@ -504,7 +504,7 @@
 <span class='line'>497</span> </span><span class="WHIT">        </span><span class="NAME">this.hostNameAppearsAs</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">host</span><span class="PUNC">;</span><span class="WHIT">
 <span class='line'>498</span> </span><span class="WHIT">        </span><span class="NAME">this.envelope.host</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="NAME">host</span><span class="PUNC">;</span><span class="WHIT">
 <span class='line'>499</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
-<span class='line'>500</span> </span><span class="WHIT">    </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"250 "</span><span class="PUNC">+</span><span class="NAME">this.server.options.HOSTNAME</span><span class="PUNC">+</span><span class="STRN">" at your service, ["</span><span class="PUNC">+</span><span class="WHIT">
+<span class='line'>500</span> </span><span class="WHIT">    </span><span class="NAME">this.client.send</span><span class="PUNC">(</span><span class="STRN">"250 "</span><span class="PUNC">+</span><span class="NAME">this.server.options.name</span><span class="PUNC">+</span><span class="STRN">" at your service, ["</span><span class="PUNC">+</span><span class="WHIT">
 <span class='line'>501</span> </span><span class="WHIT">        </span><span class="NAME">this.client.remoteAddress</span><span class="PUNC">+</span><span class="STRN">"]"</span><span class="PUNC">)</span><span class="PUNC">;</span><span class="WHIT">
 <span class='line'>502</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
 <span class='line'>503</span> 
@@ -517,7 +517,7 @@
 <span class='line'>510</span>  * @param {String} host Hostname of the client 
 <span class='line'>511</span>  */</span><span class="WHIT">
 <span class='line'>512</span> </span><span class="NAME">SMTPServerConnection.prototype._onCommandEHLO</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="KEYW">function</span><span class="PUNC">(</span><span class="NAME">host</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
-<span class='line'>513</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">response</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">[</span><span class="NAME">this.server.options.HOSTNAME</span><span class="PUNC">+</span><span class="STRN">" at your service, ["</span><span class="PUNC">+</span><span class="WHIT">
+<span class='line'>513</span> </span><span class="WHIT">    </span><span class="KEYW">var</span><span class="WHIT"> </span><span class="NAME">response</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">[</span><span class="NAME">this.server.options.name</span><span class="PUNC">+</span><span class="STRN">" at your service, ["</span><span class="PUNC">+</span><span class="WHIT">
 <span class='line'>514</span> </span><span class="WHIT">        </span><span class="NAME">this.client.remoteAddress</span><span class="PUNC">+</span><span class="STRN">"]"</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="STRN">"8BITMIME"</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="STRN">"ENHANCEDSTATUSCODES"</span><span class="PUNC">]</span><span class="PUNC">;</span><span class="WHIT">
 <span class='line'>515</span> </span><span class="WHIT">    
 <span class='line'>516</span>     </span><span class="KEYW">if</span><span class="PUNC">(</span><span class="NAME">this.server.options.maxSize</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
