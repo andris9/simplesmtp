@@ -29,7 +29,7 @@ SMTP options can include the following:
   * **validateSender** - if set to true, emit `'validateSender'` with `email` and `callback` when the client enters `MAIL FROM:<address>`
   * **validateRecipients** - if set to true, emit `'validateRecipient'` with `email` and `callback` when the client enters `RCPT TO:<address>`
   * **maxSize** - maximum size of an e-mail in bytes (currently informational only)
-  * **credentials** - TLS credentials (`{key:'', cert:'', ca:''}`) for the server
+  * **credentials** - TLS credentials (`{key:'', cert:'', ca:['']}`) for the server
   * **authMethods** - allowed authentication methods, defaults to `["PLAIN", "LOGIN"]`
   * **disableEHLO** - if set to true, support HELO command only
   
