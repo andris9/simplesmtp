@@ -40,7 +40,7 @@ exports["General tests"] = {
             test.done();
         });
     }
-}
+};
 
 exports["Secure server"] = {
     setUp: function (callback) {
@@ -80,7 +80,7 @@ exports["Secure server"] = {
             test.done();
         });
     }
-}
+};
 
 exports["Disabled EHLO"] = {
     setUp: function (callback) {
@@ -116,7 +116,7 @@ exports["Disabled EHLO"] = {
             test.done();
         });
     }
-}
+};
 
 exports["Authentication needed"] = {
     setUp: function (callback) {
@@ -187,7 +187,7 @@ exports["Authentication needed"] = {
             test.done();
         });
     }
-}
+};
 
 exports["Message tests"] = {
     setUp: function (callback) {
@@ -440,4 +440,4 @@ exports["Message tests"] = {
         });
     }
     
-}
+};

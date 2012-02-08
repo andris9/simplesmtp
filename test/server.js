@@ -149,7 +149,7 @@ exports["General tests"] = {
     }
 };
 
-exports["EHLO"] = {
+exports["EHLO setting"] = {
     setUp: function (callback) {
         
         this.smtp = new simplesmtp.createServer({
@@ -177,7 +177,7 @@ exports["EHLO"] = {
         });
         
     }
-}
+};
 
 exports["Require AUTH"] = {
     setUp: function (callback) {

@@ -122,7 +122,7 @@ exports["General tests"] = {
             mc;
         
         this.server.on("dataReady", function(envelope, callback){
-            process.nextTick(function(){callback(new Error("Spam!"))});
+            process.nextTick(function(){callback(new Error("Spam!"));});
         });
         
         var completed = 0;
@@ -248,7 +248,7 @@ exports["Auth fail tests"] = {
             }),
             mc;
         this.server.on("dataReady", function(envelope, callback){
-            process.nextTick(function(){callback(new Error("Spam!"))});
+            process.nextTick(function(){callback(new Error("Spam!"));});
         });
         
         var completed = 0;
@@ -273,4 +273,4 @@ exports["Auth fail tests"] = {
             });
         }
     }
-}
+};
