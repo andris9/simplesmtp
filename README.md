@@ -79,7 +79,7 @@ where
   * **host** is the hostname to connect to (defaults to "localhost")
   * **options** is an optional options object (see below)
   
-#### Connection options
+### Connection options
 
 The following connection options can be used with `simplesmtp.connect`:
 
@@ -90,7 +90,7 @@ The following connection options can be used with `simplesmtp.connect`:
   * **debug** - output client and server messages to console
   * **instanceId** - unique instance id for debugging (will be output console with the messages)
 
-#### Connection events
+### Connection events
 
 Once a connection is set up the following events can be listened to:
 
@@ -101,7 +101,7 @@ Once a connection is set up the following events can be listened to:
   * **'error'** `(err)` - An error occurred. The connection is closed and an 'end' event is emitted shortly
   * **'end'** - connection to the client is closed
 
-#### Sending an envelope
+### Sending an envelope
 
 When an `'idle'` event is emitted, an envelope object can be sent to the server.
 This includes a string `from` and an array of strings `to` property.
@@ -128,7 +128,7 @@ event is emitted.
 
 If the envelope is set up correctly a `'message'` event is emitted.
 
-#### Sending a message
+### Sending a message
 
 When `'message'` event is emitted, it is possible to send mail. To do this
 you can pipe directly a message source (for example an .eml file) to the client
@@ -151,7 +151,7 @@ parameter which indicates if the message was transmitted( (true) or not (false).
         }
     });
 
-#### Error types
+### Error types
 
 Emitted errors include the reason for failing in the `name` property
 
@@ -160,7 +160,7 @@ Emitted errors include the reason for failing in the `name` property
   * **SenderError** - the sender e-mail address was rejected
   * **RecipientError** - all recipients were rejected (if only some of the recipients are rejected, a `'rcptFailed'` event is raised instead
 
-#### About reusing the connection
+### About reusing the connection
 
 You can reuse the same connection several times but you can't send a mail
 through the same connection concurrently. So if you catch and `'idle'` event
@@ -169,7 +169,7 @@ lock the connection to a message process and unlock after `'ready'`.
 On '`error'` events you should reschedule the message and on `'end'` events
 you should recreate the connection.
 
-#### Closing the client
+### Closing the client
 
 By default the client tries to keep the connection up. If you want to close it,
 run `client.quit()` - this sends a `QUIT` command to the server and closes the
@@ -194,7 +194,7 @@ where
   * **host** is the hostname to connect to (defaults to "localhost")
   * **options** is an optional options object (see below)
 
-#### Connection options
+### Connection options
 
 The following connection options can be used with `simplesmtp.connect`:
 
