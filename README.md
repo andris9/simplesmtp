@@ -143,11 +143,12 @@ this is needed to complete the message sequence by the client.
     });
 
 Once the message is delivered a `'ready'` event is emitted. The event has an
-parameter which indicates if the message was transmitted( (true) or not (false).
+parameter which indicates if the message was transmitted( (true) or not (false)
+and another which includes the last received data from the server.
 
-    client.on("ready", function(success){
+    client.on("ready", function(success, response){
         if(success){
-            console.log("The message was transmitted successfully");
+            console.log("The message was transmitted successfully with "+response);
         }
     });
 
@@ -157,8 +158,12 @@ Emitted errors include the reason for failing in the `name` property
 
   * **UnknowAuthError** - the client tried to authenticate but the method was not supported
   * **AuthError** - the username/password used were rejected
+  * **TLSError** - STARTTLS failed
   * **SenderError** - the sender e-mail address was rejected
   * **RecipientError** - all recipients were rejected (if only some of the recipients are rejected, a `'rcptFailed'` event is raised instead
+
+There's also an additional property in the error object called `data` that includes
+the last response received from the server (if available for the current error type). 
 
 ### About reusing the connection
 
@@ -214,7 +219,7 @@ E-mails can be sent through the pool with
 where
 
   * **mail** is a [MailComposer](/andris9/mailcomposer) compatible object
-  * **callback** `(error, failedRecipients)` - is the callback function to run after the message is delivered or an error occured. `failedRecipients` is an array with e-mail addresses that were rejected.
+  * **callback** `(error, responseObj)` - is the callback function to run after the message is delivered or an error occured. `responseObj` may include `failedRecipients` which is an array with e-mail addresses that were rejected and `message` which is the last response from the server.
 
 ### Errors
 

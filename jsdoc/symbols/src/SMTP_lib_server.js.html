@@ -227,7 +227,7 @@
 <span class='line'>220</span> </span><span class="WHIT">        </span><span class="KEYW">return</span><span class="PUNC">;</span><span class="WHIT">
 <span class='line'>221</span> </span><span class="WHIT">    </span><span class="PUNC">}</span><span class="WHIT">
 <span class='line'>222</span> </span><span class="WHIT">    
-<span class='line'>223</span>     </span><span class="KEYW">switch</span><span class="PUNC">(</span><span class="NAME">command</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>223</span>     </span><span class="KEYW">switch</span><span class="PUNC">(</span><span class="PUNC">(</span><span class="NAME">command</span><span class="WHIT"> </span><span class="PUNC">||</span><span class="TOKN"> </span><span class="STRN">""</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">toString</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">trim</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">.</span><span class="NAME">toUpperCase</span><span class="PUNC">(</span><span class="PUNC">)</span><span class="PUNC">)</span><span class="PUNC">{</span><span class="WHIT">
 <span class='line'>224</span> </span><span class="WHIT">        
 <span class='line'>225</span>         </span><span class="COMM">// Should not occur too often </span><span class="WHIT">
 <span class='line'>226</span> </span><span class="WHIT">        </span><span class="KEYW">case</span><span class="WHIT"> </span><span class="STRN">"HELO"</span><span class="PUNC">:</span><span class="WHIT">

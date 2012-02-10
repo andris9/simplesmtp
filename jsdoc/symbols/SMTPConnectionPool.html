@@ -57,7 +57,7 @@
 			Documentation generator: <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0<br />
 			Template: <a href="http://www.thebrightlines.com/2010/05/06/new-template-for-jsdoctoolkit-codeview/" target="_blank">Codeview</a> 1.2<br />
 			Generated on:
-			<time datetime='2012-1-8' pubdate>2012-1-8 15:54</time>
+			<time datetime='2012-1-10' pubdate>2012-1-10 10:20</time>
 		</footer>
 	</div>
 </div>
@@ -369,7 +369,7 @@ there's a message currently in queue</p></div>
 											<tr>
 												<td class="attributes">&lt;private&gt; &nbsp;</td>
 												<td class="nameDescription">
-													<div class="fixedFont"><b><a href="../symbols/SMTPConnectionPool.html#event:_onConnectionReady">_onConnectionReady</a></b>(connection, success)
+													<div class="fixedFont"><b><a href="../symbols/SMTPConnectionPool.html#event:_onConnectionReady">_onConnectionReady</a></b>(connection, success, message)
 													</div>
 													<div class="description"><p>Will be called when a message has been delivered</p></div>
 												</td>
@@ -786,7 +786,10 @@ use one to send the message immediatelly, otherwise add to queue.</p>
 													</dt>
 													<dd>Callback function to run on finish, gets an
        <code>error</code> object as a parameter if the sending failed
-       and on success a list of addresses that were rejected (if any)</dd>
+       and on success an object with <code>failedRecipients</code> array as 
+       a list of addresses that were rejected (if any) and 
+       <code>message</code> which indicates the last message received from
+       the server</dd>
 												
 											</dl>
 										
@@ -1018,7 +1021,7 @@ there's a message currently in queue</p>
 									
 									
 									
-									<b>_onConnectionReady</b>(connection, success)
+									<b>_onConnectionReady</b>(connection, success, message)
 								</div>
 								
 								<div class="description">
@@ -1046,6 +1049,12 @@ there's a message currently in queue</p>
 												
 											</dt>
 											<dd>True if the message was queued by the SMTP server</dd>
+										
+											<dt>
+												<span class="light fixedFont">{String}</span> <b>message</b>
+												
+											</dt>
+											<dd>Last message received from the server</dd>
 										
 									</dl>
 								
