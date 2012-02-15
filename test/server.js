@@ -5,6 +5,11 @@ var testCase = require('nodeunit').testCase,
 
 var PORT_NUMBER = 8397;
 
+// monkey patch net and tls to support nodejs 0.4
+if(!netlib.connect && netlib.createConnection){
+    netlib.connect = netlib.createConnection;
+}
+
 exports["General tests"] = {
     setUp: function (callback) {
         

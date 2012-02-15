@@ -1,10 +1,11 @@
 var testCase = require('nodeunit').testCase,
     runClientMockup = require("rai").runClientMockup,
     simplesmtp = require("../index"),
-    netlib = require("net"),
     fs = require("fs");
 
 var PORT_NUMBER = 8397;
+
+
 
 exports["General tests"] = {
     setUp: function (callback) {
