@@ -9,8 +9,11 @@ var PORT_NUMBER = 8397;
 
 exports["General tests"] = {
     setUp: function (callback) {
+        console.log(1)
         this.server = new simplesmtp.createServer({});
+        console.log(3)
         this.server.listen(PORT_NUMBER, function(err){
+            console.log(2)
             if(err){
                 throw err;
             }else{
