@@ -24,23 +24,28 @@ exports["General tests"] = {
     },
     
     tearDown: function (callback) {
+        console.log(8)
         this.server.end(callback);
     },
     
     "Connect and setup": function(test){
+        console.log(4)
         var client = simplesmtp.connect(PORT_NUMBER, false, {});
         
         client.once("idle", function(){
+            console.log(5)
             // Client is ready to take messages
             test.ok(true);
             client.close();
         });
         
         client.on("error", function(err){
+            console.log(6)
             test.ok(false);
         });
         
         client.on("end", function(){
+            console.log(7)
             test.done();
         });
     }
