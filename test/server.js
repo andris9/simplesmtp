@@ -16,7 +16,8 @@ exports["General tests"] = {
         this.smtp = new simplesmtp.createServer({
             SMTPBanner: "SCORPIO",
             name: "MYRDO",
-            maxSize: 1234
+            maxSize: 1234,
+            debug: true
         });
         this.smtp.listen(PORT_NUMBER, function(err){
             if(err){
