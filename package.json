@@ -1,7 +1,7 @@
 {
     "name": "simplesmtp",
     "description": "Simple SMTP server module to create custom SMTP servers",
-    "version": "0.1.13",
+    "version": "0.1.14",
     "author" : "Andris Reinman",
     "maintainers":[
         {
@@ -14,7 +14,7 @@
         "url" : "http://github.com/andris9/simplesmtp.git"
     },
     "scripts":{
-        "test": "node ./run_tests.js"
+        "test": "nodeunit test/"
     },
     "main" : "./lib/smtp",
     "licenses" : [

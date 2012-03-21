@@ -26,8 +26,8 @@ SMTP options can include the following:
   * **secureConnection** - start a server on secure connection
   * **SMTPBanner** - greeting banner that is sent to the client on connection
   * **requireAuthentication** - if set to true, require that the client must authenticate itself
-  * **validateSender** - if set to true, emit `'validateSender'` with `email` and `callback` when the client enters `MAIL FROM:<address>`
-  * **validateRecipients** - if set to true, emit `'validateRecipient'` with `email` and `callback` when the client enters `RCPT TO:<address>`
+  * **validateSender** - if set to true, emit `'validateSender'` with `envelope`, `email` and `callback` when the client enters `MAIL FROM:<address>`
+  * **validateRecipients** - if set to true, emit `'validateRecipient'` with `envelope`, `email` and `callback` when the client enters `RCPT TO:<address>`
   * **maxSize** - maximum size of an e-mail in bytes (currently informational only)
   * **credentials** - TLS credentials (`{key:'', cert:'', ca:['']}`) for the server
   * **authMethods** - allowed authentication methods, defaults to `["PLAIN", "LOGIN"]`
@@ -85,7 +85,7 @@ The following connection options can be used with `simplesmtp.connect`:
 
   * **secureConnection** - use SSL
   * **name** - the name of the client server
-  * **auth** - authentication object `{user:"...", pass:"..."}`
+  * **auth** - authentication object `{user:"...", pass:"..."}` or `{XOAuthToken:"base64data"}`
   * **ignoreTLS** - ignore server support for STARTTLS
   * **debug** - output client and server messages to console
   * **instanceId** - unique instance id for debugging (will be output console with the messages)
@@ -205,7 +205,7 @@ The following connection options can be used with `simplesmtp.connect`:
 
   * **secureConnection** - use SSL
   * **name** - the name of the client server
-  * **auth** - authentication object `{user:"...", pass:"..."}`
+  * **auth** - authentication object `{user:"...", pass:"..."}` or  `{XOAuthToken:"base64data"}`
   * **ignoreTLS** - ignore server support for STARTTLS
   * **debug** - output client and server messages to console
   * **maxConnections** - how many connections to keep in the pool (defaults to 5)

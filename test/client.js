@@ -197,11 +197,11 @@ exports["Message tests"] = {
             validateRecipients: true
         });
         
-        this.server.on("validateSender", function(email, callback){
+        this.server.on("validateSender", function(envelope, email, callback){
             callback(email != "test@node.ee"?new Error("Failed sender") : null);
         });
         
-        this.server.on("validateRecipient", function(email, callback){
+        this.server.on("validateRecipient", function(envelope, email, callback){
             callback(email.split("@").pop() != "node.ee"?new Error("Failed recipient") : null);
         });
         
