@@ -150,6 +150,43 @@ and another which includes the last received data from the server.
         }
     });
 
+### XOAUTH
+
+**simplesmtp** supports [XOAUTH](https://developers.google.com/google-apps/gmail/oauth_protocol) authentication.
+
+To use this feature you can set `XOAuthToken` param as an `auth` option
+
+    var mailOptions = {
+        ...,
+        auth:{
+            XOAuthToken: "R0VUIGh0dHBzOi8vbWFpbC5nb29...."
+        }
+    }
+
+Alternatively it is also possible to use XOAuthToken generators (supported by Nodemailer) - this
+needs to be an object with a mandatory method `generate` that takes a callback function for
+generating a XOAUTH token string. This is better for generating tokens only when needed - 
+there is no need to calculate unique token for every e-mail request, since a lot of these
+might share the same connection and thus the cleint needs not to re-authenticate itself
+with another token.
+
+    var XOGen = {
+        token: "abc",
+        generate: function(callback){
+            if(1 != 1){
+                return callback(new Error("Tokens can't be generated in strange environments"));
+            }
+            callback(null, new Buffer(this.token, "utf-8").toString("base64"));
+        }
+    }
+    
+    var mailOptions = {
+        ...,
+        auth:{
+            XOAuthToken: XOGen
+        }
+    }
+
 ### Error types
 
 Emitted errors include the reason for failing in the `name` property
@@ -169,7 +206,7 @@ You can reuse the same connection several times but you can't send a mail
 through the same connection concurrently. So if you catch and `'idle'` event
 lock the connection to a message process and unlock after `'ready'`.
 
-On '`error'` events you should reschedule the message and on `'end'` events
+On `'error'` events you should reschedule the message and on `'end'` events
 you should recreate the connection.
 
 ### Closing the client
