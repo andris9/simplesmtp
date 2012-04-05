@@ -204,6 +204,124 @@ exports["Require AUTH"] = {
     tearDown: function (callback) {
         this.smtp.end(callback);
     },
+    "Fail without AUTH": function(test){
+        var cmds = ["EHLO FOO", "MAIL FROM:<andris@node.ee>"];
+        runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
+            test.equal("5",resp.toString("utf-8").trim().substr(0,1));
+            test.done();
+        });
+    },
+    "Unknown AUTH": function(test){
+        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", "AUTH CRAM"];
+        runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
+            test.equal("5",resp.toString("utf-8").trim().substr(0,1));
+            test.done();
+        });
+    },
+    "AUTH fails before STARTTLS": function(test){
+        var cmds = ["EHLO FOO", "AUTH LOGIN"];
+        runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
+            test.equal("5",resp.toString("utf-8").trim().substr(0,1));
+            test.done();
+        });
+    },
+    "AUTH LOGIN Invalid login": function(test){
+        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", "AUTH LOGIN", 
+                    new Buffer("inv").toString("base64"),
+                    new Buffer("alid").toString("base64")];
+        runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
+            test.equal("5",resp.toString("utf-8").trim().substr(0,1));
+            test.done();
+        });
+    },
+    "AUTH LOGIN Invalid username": function(test){
+        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", "AUTH LOGIN", 
+                    new Buffer("inv").toString("base64"),
+                    new Buffer("test").toString("base64")];
+        runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
+            test.equal("5",resp.toString("utf-8").trim().substr(0,1));
+            test.done();
+        });
+    },
+    "AUTH LOGIN Invalid password": function(test){
+        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", "AUTH LOGIN", 
+                    new Buffer("andris").toString("base64"),
+                    new Buffer("alid").toString("base64")];
+        runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
+            test.equal("5",resp.toString("utf-8").trim().substr(0,1));
+            test.done();
+        });
+    },
+    "AUTH LOGIN Login success": function(test){
+        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", "AUTH LOGIN", 
+                    new Buffer("andris").toString("base64"),
+                    new Buffer("test").toString("base64")];
+        runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
+            test.equal("2",resp.toString("utf-8").trim().substr(0,1));
+            test.done();
+        });
+    },
+    "AUTH PLAIN Invalid login": function(test){
+        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", "AUTH PLAIN"+
+                    new Buffer("inv\u0000inv\u0000alid").toString("base64")];
+        runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
+            test.equal("5",resp.toString("utf-8").trim().substr(0,1));
+            test.done();
+        });
+    },
+    "AUTH PLAIN Invalid user": function(test){
+        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", "AUTH PLAIN"+
+                    new Buffer("inv\u0000inv\u0000test").toString("base64")];
+        runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
+            test.equal("5",resp.toString("utf-8").trim().substr(0,1));
+            test.done();
+        });
+    },
+    "AUTH PLAIN Invalid password": function(test){
+        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", "AUTH PLAIN"+
+                    new Buffer("andris\u0000andris\u0000alid").toString("base64")];
+        runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
+            test.equal("5",resp.toString("utf-8").trim().substr(0,1));
+            test.done();
+        });
+    },
+    "AUTH PLAIN Login success": function(test){
+        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", "AUTH PLAIN"+
+                    new Buffer("andris\u0000andris\u0000test").toString("base64")];
+        runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
+            test.equal("5",resp.toString("utf-8").trim().substr(0,1));
+            test.done();
+        });
+    }
+};
+
+exports["Enable AUTH"] = {
+    setUp: function (callback) {
+        
+        this.smtp = new simplesmtp.createServer({enableAuthentication: true});
+        this.smtp.listen(PORT_NUMBER, function(err){
+            if(err){
+                throw err;
+            }else{
+                callback();
+            }
+        });
+        
+        this.smtp.on("authorizeUser", function(envelope, username, password, callback){
+            callback(null, username=="andris" && password=="test");
+        });
+        
+    },
+    tearDown: function (callback) {
+        this.smtp.end(callback);
+    },
+    "Pass without AUTH": function(test){
+        var cmds = ["EHLO FOO", "MAIL FROM:<andris@node.ee>"];
+        runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
+            test.equal("2",resp.toString("utf-8").trim().substr(0,1));
+            test.done();
+        });
+    },
     "Unknown AUTH": function(test){
         var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", "AUTH CRAM"];
         runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){

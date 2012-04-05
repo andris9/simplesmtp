@@ -24,6 +24,7 @@ SMTP options can include the following:
   * **secureConnection** - start a server on secure connection
   * **SMTPBanner** - greeting banner that is sent to the client on connection
   * **requireAuthentication** - if set to true, require that the client must authenticate itself
+  * **enableAuthentication** - if set to true, client may authenticate itself but don't have to (as opposed to `requireAuthentication` that explicitly requires clients to authenticate themselves)
   * **validateSender** - if set to true, emit `'validateSender'` with `envelope`, `email` and `callback` when the client enters `MAIL FROM:<address>`
   * **validateRecipients** - if set to true, emit `'validateRecipient'` with `envelope`, `email` and `callback` when the client enters `RCPT TO:<address>`
   * **maxSize** - maximum size of an e-mail in bytes (currently informational only)
