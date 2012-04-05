@@ -184,6 +184,34 @@ exports["EHLO setting"] = {
     }
 };
 
+exports["Client disconnect"] = {
+
+    "Client disconnect": function(test){
+        
+        var smtp = new simplesmtp.createServer(),
+            clientEnvelope;
+        smtp.listen(PORT_NUMBER, function(err){
+            if(err){
+                throw err;
+            }
+            
+            runClientMockup(PORT_NUMBER, "localhost", ["EHLO foo", "MAIL FROM:<andris@node.ee>", "RCPT TO:<andris@node.ee>", "DATA"], function(resp){
+                test.equal("3",resp.toString("utf-8").trim().substr(0,1));
+            });
+            
+        });
+        smtp.on("startData", function(envelope){
+            clientEnvelope = envelope;
+        });
+        smtp.on("close", function(envelope){
+            test.equal(envelope, clientEnvelope);
+            smtp.end(function(){});
+            test.done();
+        });
+
+    }
+};
+
 exports["Require AUTH"] = {
     setUp: function (callback) {
         

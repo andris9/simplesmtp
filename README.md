@@ -66,6 +66,7 @@ SMTP options can include the following:
   * **authorizeUser** *(envelope, username, password, callback)* - will be emitted if `requireAuthentication` option is set to true. `callback` has two parameters *(err, success)* where `success` is Boolean and should be true, if user is authenticated successfully
   * **validateSender** *(envelope, email, callback)* - will be emitted if `validateSender` option is set to true
   * **validateRecipient** *(envelope, email, callback)* - will be emitted it `validataRecipients` option is set to true
+  * **close** *(envelope)* - emitted when the connection to client is closed
   
 ## SMTP Client
 
