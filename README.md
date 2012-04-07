@@ -4,6 +4,10 @@ This is a module to easily create custom SMTP servers and clients - use SMTP as 
 
 [![Build Status](https://secure.travis-ci.org/andris9/simplesmtp.png)](http://travis-ci.org/andris9/simplesmtp)
 
+## Support simplesmtp development
+
+[![Donate to author](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=DB26KWR2BQX5W)
+
 ## SMTP Server
 
 ### Usage
