@@ -1,7 +1,7 @@
 {
     "name": "simplesmtp",
     "description": "Simple SMTP server module to create custom SMTP servers",
-    "version": "0.1.17",
+    "version": "0.1.18",
     "author" : "Andris Reinman",
     "maintainers":[
         {
