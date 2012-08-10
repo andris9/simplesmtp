@@ -477,10 +477,10 @@ exports["Enable AUTH"] = {
     }
 };
 
-exports["optionalSTARTTLS"] = {
+exports["ignoreTLS"] = {
     setUp: function (callback) {
 
-        this.smtp = new simplesmtp.createServer({requireAuthentication: true, optionalSTARTTLS: true});
+        this.smtp = new simplesmtp.createServer({requireAuthentication: true, ignoreTLS: true});
         this.smtp.listen(PORT_NUMBER, function(err){
             if(err){
                 throw err;
@@ -532,7 +532,7 @@ exports["Sending mail listen for dataReady"] = {
     setUp: function (callback) {
         var data = "";
 
-        this.smtp = new simplesmtp.createServer({optionalSTARTTLS: true});
+        this.smtp = new simplesmtp.createServer({ignoreTLS: true});
         this.smtp.listen(PORT_NUMBER, function(err){
             if(err){
                 throw err;
