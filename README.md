@@ -35,6 +35,7 @@ SMTP options can include the following:
   * **credentials** - TLS credentials (`{key:'', cert:'', ca:['']}`) for the server
   * **authMethods** - allowed authentication methods, defaults to `["PLAIN", "LOGIN"]`
   * **disableEHLO** - if set to true, support HELO command only
+  * **ignoreTLS** - if set to true, allow client do not use STARTTLS
   
 ### Example
 
@@ -271,3 +272,4 @@ In addition to SMTP client errors another error name is used
 ## License
 
 **MIT**
+
