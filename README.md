@@ -36,6 +36,7 @@ SMTP options can include the following:
   * **authMethods** - allowed authentication methods, defaults to `["PLAIN", "LOGIN"]`
   * **disableEHLO** - if set to true, support HELO command only
   * **ignoreTLS** - if set to true, allow client do not use STARTTLS
+  * **disableDNSValidation** - if set, do not validate sender domains
   
 ### Example
 
