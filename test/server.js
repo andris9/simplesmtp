@@ -144,6 +144,13 @@ exports["General tests"] = {
             test.done();
         });
     },
+    "MAIL FROM options": function(test){
+        var cmds = ["HELO FOO", "MAIL FROM:<test@gmail.com> BODY=8BITMIME"];
+        runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
+            test.ok(resp.toString("utf-8").match(/^250/));
+            test.done();
+        });
+    },
     "MAXSIZE": function(test){
         var cmds = ["EHLO FOO"];
         runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
