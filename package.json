@@ -1,7 +1,7 @@
 {
     "name": "simplesmtp",
     "description": "Simple SMTP server module to create custom SMTP servers",
-    "version": "0.1.21",
+    "version": "0.1.22",
     "author" : "Andris Reinman",
     "maintainers":[
         {
@@ -24,7 +24,8 @@
         }
     ],
     "dependencies": {
-        "rai": "*"
+        "rai": "*",
+        "xoauth2": "*"
     },
     "devDependencies": {
         "nodeunit": "*",
