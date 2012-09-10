@@ -160,7 +160,29 @@ and another which includes the last received data from the server.
 
 ### XOAUTH
 
-**simplesmtp** supports [XOAUTH](https://developers.google.com/google-apps/gmail/oauth_protocol) authentication.
+**simplesmtp** supports [XOAUTH2 and XOAUTH](https://developers.google.com/google-apps/gmail/oauth_protocol) authentication.
+
+#### XOAUTH2
+
+To use this feature you can set `XOAuth2` param as an `auth` option
+
+    var mailOptions = {
+        ...,
+        auth:{
+            XOAuth2: {
+                user: "example.user@gmail.com",
+                clientId: "8819981768.apps.googleusercontent.com",
+                clientSecret: "{client_secret}",
+                refreshToken: "1/xEoDL4iW3cxlI7yDbSRFYNG01kVKM2C-259HOF2aQbI",
+                accessToken: "vF9dft4qmTc2Nvb3RlckBhdHRhdmlzdGEuY29tCg==",
+                timeout: 3600
+            }
+        }
+    }
+
+`accessToken` and `timeout` values are optional. If login fails a new access token is generated automatically.
+
+#### XOAUTH
 
 To use this feature you can set `XOAuthToken` param as an `auth` option
 
