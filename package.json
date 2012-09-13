@@ -25,7 +25,8 @@
     ],
     "dependencies": {
         "rai": "*",
-        "xoauth2": "*"
+        "xoauth2": "*",
+        "async": "*"
     },
     "devDependencies": {
         "nodeunit": "*",
