@@ -539,7 +539,7 @@ exports["Sending mail listen for dataReady"] = {
     setUp: function (callback) {
         var data = "";
 
-        this.smtp = new simplesmtp.createServer({ignoreTLS: true});
+        this.smtp = new simplesmtp.createServer({ignoreTLS: true, debug: true});
         this.smtp.listen(PORT_NUMBER, function(err){
             if(err){
                 throw err;
@@ -557,11 +557,13 @@ exports["Sending mail listen for dataReady"] = {
         });
 
         this.smtp.on("dataReady", function(envelope, callback){
-            if (data.match('spam')) {
-                callback(true);
-            } else {
-                callback(null, '#ID');
-            }
+            setTimeout(function(){
+                if (data.match('spam')) {
+                    callback(true);
+                } else {
+                    callback(null, '#ID');
+                }
+            }, 2000);
         });
     },
     tearDown: function (callback) {
