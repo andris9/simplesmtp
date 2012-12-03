@@ -5,8 +5,6 @@ var testCase = require('nodeunit').testCase,
 
 var PORT_NUMBER = 8397;
 
-
-
 exports["General tests"] = {
     setUp: function (callback) {
         this.server = new simplesmtp.createServer();
@@ -198,11 +196,11 @@ exports["Message tests"] = {
         });
         
         this.server.on("validateSender", function(envelope, email, callback){
-            callback(email != "test@node.ee"?new Error("Failed sender") : null);
+            callback(email != "test@pangalink.net"?new Error("Failed sender") : null);
         });
         
         this.server.on("validateRecipient", function(envelope, email, callback){
-            callback(email.split("@").pop() != "node.ee"?new Error("Failed recipient") : null);
+            callback(email.split("@").pop() != "pangalink.net"?new Error("Failed recipient") : null);
         });
         
         this.server.on("dataReady", function(envelope, callback){
@@ -234,10 +232,10 @@ exports["Message tests"] = {
             test.ok(true); // waiting for envelope
             
             client.useEnvelope({
-                from: "test@node.ee",
+                from: "test@pangalink.net",
                 to: [
-                    "test1@node.ee",
-                    "test2@node.ee"
+                    "test1@pangalink.net",
+                    "test2@pangalink.net"
                 ]
             });
         });
@@ -267,10 +265,10 @@ exports["Message tests"] = {
             test.ok(true); // waiting for envelope
             
             client.useEnvelope({
-                from: "test3@node.ee",
+                from: "test3@pangalink.net",
                 to: [
-                    "test1@node.ee",
-                    "test2@node.ee"
+                    "test1@pangalink.net",
+                    "test2@pangalink.net"
                 ]
             });
         });
@@ -300,7 +298,7 @@ exports["Message tests"] = {
             test.ok(true); // waiting for envelope
             
             client.useEnvelope({
-                from: "test@node.ee",
+                from: "test@pangalink.net",
                 to: [
                     "test1@kreata.ee",
                     "test2@kreata.ee"
@@ -333,9 +331,9 @@ exports["Message tests"] = {
             test.ok(true); // waiting for envelope
             
             client.useEnvelope({
-                from: "test@node.ee",
+                from: "test@pangalink.net",
                 to: [
-                    "test1@node.ee",
+                    "test1@pangalink.net",
                     "test2@kreata.ee"
                 ]
             });
@@ -371,10 +369,10 @@ exports["Message tests"] = {
             test.ok(true); // waiting for envelope
             
             client.useEnvelope({
-                from: "test@node.ee",
+                from: "test@pangalink.net",
                 to: [
-                    "test1@node.ee",
-                    "test2@node.ee"
+                    "test1@pangalink.net",
+                    "test2@pangalink.net"
                 ]
             });
         });
@@ -383,7 +381,7 @@ exports["Message tests"] = {
             // Client is ready to take messages
             test.ok(true); // waiting for message
             
-            client.write("From: abc@example.com\r\nTo:cde@example.com\r\nSubject: test\r\n\r\nHello World!");
+            client.write("From: abc@pangalink.net\r\nTo:cde@pangalink.net\r\nSubject: test\r\n\r\nHello World!");
             client.end();
         });
         
@@ -411,10 +409,10 @@ exports["Message tests"] = {
             test.ok(true); // waiting for envelope
             
             client.useEnvelope({
-                from: "test@node.ee",
+                from: "test@pangalink.net",
                 to: [
-                    "test1@node.ee",
-                    "test2@node.ee"
+                    "test1@pangalink.net",
+                    "test2@pangalink.net"
                 ]
             });
         });

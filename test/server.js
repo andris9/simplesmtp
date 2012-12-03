@@ -201,7 +201,7 @@ exports["Client disconnect"] = {
                 throw err;
             }
             
-            runClientMockup(PORT_NUMBER, "localhost", ["EHLO foo", "MAIL FROM:<andris@node.ee>", "RCPT TO:<andris@node.ee>", "DATA"], function(resp){
+            runClientMockup(PORT_NUMBER, "localhost", ["EHLO foo", "MAIL FROM:<andris@pangalink.net>", "RCPT TO:<andris@pangalink.net>", "DATA"], function(resp){
                 test.equal("3",resp.toString("utf-8").trim().substr(0,1));
             });
             
@@ -239,7 +239,7 @@ exports["Require AUTH"] = {
         this.smtp.end(callback);
     },
     "Fail without AUTH": function(test){
-        var cmds = ["EHLO FOO", "MAIL FROM:<andris@node.ee>"];
+        var cmds = ["EHLO FOO", "MAIL FROM:<andris@pangalink.net>"];
         runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
             test.equal("5",resp.toString("utf-8").trim().substr(0,1));
             test.done();
@@ -372,7 +372,7 @@ exports["Enable AUTH"] = {
         this.smtp.end(callback);
     },
     "Pass without AUTH": function(test){
-        var cmds = ["EHLO FOO", "MAIL FROM:<andris@node.ee>"];
+        var cmds = ["EHLO FOO", "MAIL FROM:<andris@pangalink.net>"];
         runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
             test.equal("2",resp.toString("utf-8").trim().substr(0,1));
             test.done();
@@ -522,7 +522,7 @@ exports["ignoreTLS"] = {
                     "AUTH PLAIN",
                     new Buffer("\u0000d3ph\u0000test").toString("base64"),
                     "MAIL FROM:<d3ph@github.com>",
-                    "RCPT TO:<andris@node.ee>",
+                    "RCPT TO:<andris@pangalink.net>",
                     "DATA",
                     "Test mail\015\012.\015\012",
                     ];
@@ -572,7 +572,7 @@ exports["Sending mail listen for dataReady"] = {
     "Fail send mail if body contains 'spam'": function(test){
         var cmds = ["EHLO FOO",
                     "MAIL FROM:<d3ph@github.com>",
-                    "RCPT TO:<andris@node.ee>",
+                    "RCPT TO:<andris@pangalink.net>",
                     "DATA",
                     "Test mail with spam!\015\012.\015\012",
                     ];
@@ -584,7 +584,7 @@ exports["Sending mail listen for dataReady"] = {
     "Create #ID for mail": function(test){
         var cmds = ["EHLO FOO",
                     "MAIL FROM:<d3ph@github.com>",
-                    "RCPT TO:<andris@node.ee>",
+                    "RCPT TO:<andris@pangalink.net>",
                     "DATA",
                     "Clear mail body\015\012.\015\012",
                     ];
