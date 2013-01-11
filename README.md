@@ -29,8 +29,6 @@ SMTP options can include the following:
   * **SMTPBanner** - greeting banner that is sent to the client on connection
   * **requireAuthentication** - if set to true, require that the client must authenticate itself
   * **enableAuthentication** - if set to true, client may authenticate itself but don't have to (as opposed to `requireAuthentication` that explicitly requires clients to authenticate themselves)
-  * **validateSender** - if set to true, emit `'validateSender'` with `envelope`, `email` and `callback` when the client enters `MAIL FROM:<address>`
-  * **validateRecipients** - if set to true, emit `'validateRecipient'` with `envelope`, `email` and `callback` when the client enters `RCPT TO:<address>`
   * **maxSize** - maximum size of an e-mail in bytes (currently informational only)
   * **credentials** - TLS credentials (`{key:'', cert:'', ca:['']}`) for the server
   * **authMethods** - allowed authentication methods, defaults to `["PLAIN", "LOGIN"]`
@@ -46,33 +44,32 @@ SMTP options can include the following:
     var smtp = simplesmtp.createServer();
     smtp.listen(25);
 
-    smtp.on("startData", function(envelope){
-        console.log("Message from:", envelope.from);
-        console.log("Message to:", envelope.to);
-        envelope.saveStream = fs.createWriteStream("/tmp/message.txt");
+    smtp.on("startData", function(connection){
+        console.log("Message from:", connection.from);
+        console.log("Message to:", connection.to);
+        connection.saveStream = fs.createWriteStream("/tmp/message.txt");
     });
     
-    smtp.on("data", function(envelope, chunk){
-        envelope.saveStream.write(chunk);
+    smtp.on("data", function(connection, chunk){
+        connection.saveStream.write(chunk);
     });
     
-    smtp.on("dataReady", function(envelope, callback){
-        envelope.saveStream.end();
+    smtp.on("dataReady", function(connection, callback){
+        connection.saveStream.end();
         console.log("Incoming message saved to /tmp/message.txt");
         callback(null, "ABC1"); // ABC1 is the queue id to be advertised to the client
         // callback(new Error("That was clearly a spam!"));
     });
 
-
 ### Events
 
-  * **startData** *(envelope)* - DATA stream is opened by the client (`envelope` is an object with `from`, `to`, `host` and `remoteAddress` properties)
-  * **data** *(envelope, chunk)* - e-mail data chunk is passed from the client 
-  * **dataReady** *(envelope, callback)* - client is finished passing e-mail data, `callback` returns the queue id to the client
-  * **authorizeUser** *(envelope, username, password, callback)* - will be emitted if `requireAuthentication` option is set to true. `callback` has two parameters *(err, success)* where `success` is Boolean and should be true, if user is authenticated successfully
-  * **validateSender** *(envelope, email, callback)* - will be emitted if `validateSender` option is set to true
-  * **validateRecipient** *(envelope, email, callback)* - will be emitted it `validataRecipients` option is set to true
-  * **close** *(envelope)* - emitted when the connection to client is closed
+  * **startData** *(connection)* - DATA stream is opened by the client (`connection` is an object with `from`, `to`, `host` and `remoteAddress` properties)
+  * **data** *(connection, chunk)* - e-mail data chunk is passed from the client 
+  * **dataReady** *(connection, callback)* - client is finished passing e-mail data, `callback` returns the queue id to the client
+  * **authorizeUser** *(connection, username, password, callback)* - will be emitted if `requireAuthentication` option is set to true. `callback` has two parameters *(err, success)* where `success` is Boolean and should be true, if user is authenticated successfully
+  * **validateSender** *(connection, email, callback)* - will be emitted if `validateSender` listener is set up
+  * **validateRecipient** *(connection, email, callback)* - will be emitted it `validataRecipients` listener is set up
+  * **close** *(connection)* - emitted when the connection to client is closed
   
 ## SMTP Client
 

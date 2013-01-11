@@ -529,7 +529,7 @@ exports["ignoreTLS"] = {
         runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
             var resp = resp.toString("utf-8").trim();
             test.equal("2",resp.substr(0,1));
-            test.ok(resp.match('FOOBARBAZ'));
+            test.ok(resp.match('queued as'));
             test.done();
         });
     }
@@ -539,7 +539,7 @@ exports["Sending mail listen for dataReady"] = {
     setUp: function (callback) {
         var data = "";
 
-        this.smtp = new simplesmtp.createServer({ignoreTLS: true, debug: true});
+        this.smtp = new simplesmtp.createServer({ignoreTLS: true});
         this.smtp.listen(PORT_NUMBER, function(err){
             if(err){
                 throw err;

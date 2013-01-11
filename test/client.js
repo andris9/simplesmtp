@@ -44,8 +44,7 @@ exports["General tests"] = {
 exports["Secure server"] = {
     setUp: function (callback) {
         this.server = new simplesmtp.createServer({
-            secureConnection: true,
-            debug: true
+            secureConnection: true
         });
         this.server.listen(PORT_NUMBER, function(err){
             if(err){
@@ -63,8 +62,7 @@ exports["Secure server"] = {
     
     "Connect and setup": function(test){
         var client = simplesmtp.connect(PORT_NUMBER, false, {
-            secureConnection: true,
-            debug: true
+            secureConnection: true
         });
         
         client.once("idle", function(){
