@@ -10,6 +10,40 @@ This is a module to easily create custom SMTP servers and clients - use SMTP as 
 
 ## SMTP Server
 
+## Simple SMTP server
+
+For a simple inbound only, no authentication SMT server you can use 
+
+    simplesmtp.createSimpleServer([options], requestListener).listen(port);
+
+Example
+
+    simplesmtp.createSimpleServer({SMTPBanner:"My Server"}, function(req){
+        req.pipe(process.stdout);
+        req.accept();
+    }).listen(port);
+
+Properties
+
+  * **req.from** - From address
+  * **req.to** - an array of To addresses
+  * **req.host** - hostname reported by the client
+  * **req.remodeAddress** - client IP address
+
+Methods
+
+  * **req.accept** *([id])* - Accept the message with the selected ID
+  * **req.reject** *([message])* - Reject the message with the selected message
+  * **req.pipe** *(stream)* - Pipe the incoming data to a writable stream
+
+Events
+
+  * **'data'** *(chunk)* - A chunk (Buffer) of the message.
+  * **'end'** - The message has been transferred
+
+
+## Advanced SMTP server
+
 ### Usage
 
 Create a new SMTP server instance with
@@ -58,7 +92,7 @@ SMTP options can include the following:
         connection.saveStream.end();
         console.log("Incoming message saved to /tmp/message.txt");
         callback(null, "ABC1"); // ABC1 is the queue id to be advertised to the client
-        // callback(new Error("That was clearly a spam!"));
+        // callback(new Error("Rejected as spam!")); // reported back to the client
     });
 
 ### Events

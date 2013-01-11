@@ -559,7 +559,7 @@ exports["Sending mail listen for dataReady"] = {
         this.smtp.on("dataReady", function(envelope, callback){
             setTimeout(function(){
                 if (data.match('spam')) {
-                    callback(true);
+                    callback(new Error("FAILED"));
                 } else {
                     callback(null, '#ID');
                 }
