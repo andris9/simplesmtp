@@ -3,6 +3,7 @@
 This is a module to easily create custom SMTP servers and clients - use SMTP as a first class protocol in Node.JS!
 
 [![Build Status](https://secure.travis-ci.org/andris9/simplesmtp.png)](http://travis-ci.org/andris9/simplesmtp)
+[![NPM version](https://badge.fury.io/js/simplesmtp.png)](http://badge.fury.io/js/simplesmtp)
 
 ## Support simplesmtp development
 
