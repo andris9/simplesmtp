@@ -1,7 +1,7 @@
 {
     "name": "simplesmtp",
     "description": "Simple SMTP server module to create custom SMTP servers",
-    "version": "0.2.7",
+    "version": "0.3.0",
     "author" : "Andris Reinman",
     "maintainers":[
         {
@@ -31,6 +31,6 @@
         "nodeunit": "*",
         "mailcomposer": "*"
     },
-    "engines": ["node >=0.4.0"],
+    "engines" : { "node" : ">=0.8.0" },
     "keywords": ["servers", "text-based", "smtp", "email", "mail", "e-mail"]
 }

@@ -3,6 +3,8 @@ var testCase = require('nodeunit').testCase,
     simplesmtp = require("../index"),
     fs = require("fs");
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
+
 var PORT_NUMBER = 8397;
 
 exports["General tests"] = {

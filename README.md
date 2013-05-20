@@ -5,6 +5,12 @@ This is a module to easily create custom SMTP servers and clients - use SMTP as 
 [![Build Status](https://secure.travis-ci.org/andris9/simplesmtp.png)](http://travis-ci.org/andris9/simplesmtp)
 [![NPM version](https://badge.fury.io/js/simplesmtp.png)](http://badge.fury.io/js/simplesmtp)
 
+## Version warning!
+
+If you are using node v0.6, then the last usable version of **simplesmtp** is v0.2.7
+
+Current version of simplesmtp is fully supported for Node v0.8+
+
 ## Support simplesmtp development
 
 [![Donate to author](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=DB26KWR2BQX5W)
@@ -13,7 +19,7 @@ This is a module to easily create custom SMTP servers and clients - use SMTP as 
 
 ## Simple SMTP server
 
-For a simple inbound only, no authentication SMT server you can use 
+For a simple inbound only, no authentication SMT server you can use
 
     simplesmtp.createSimpleServer([options], requestListener).listen(port);
 
@@ -50,11 +56,11 @@ Events
 Create a new SMTP server instance with
 
     var smtp = simplesmtp.createServer([options]);
-    
+
 And start listening on selected port
 
     smtp.listen(25, [function(err){}]);
-    
+
 SMTP options can include the following:
 
   * **name** - the hostname of the server, will be used for informational messages
@@ -70,7 +76,7 @@ SMTP options can include the following:
   * **disableEHLO** - if set to true, support HELO command only
   * **ignoreTLS** - if set to true, allow client do not use STARTTLS
   * **disableDNSValidation** - if set, do not validate sender domains
-  
+
 ### Example
 
     var simplesmtp = require("simplesmtp"),
@@ -84,11 +90,11 @@ SMTP options can include the following:
         console.log("Message to:", connection.to);
         connection.saveStream = fs.createWriteStream("/tmp/message.txt");
     });
-    
+
     smtp.on("data", function(connection, chunk){
         connection.saveStream.write(chunk);
     });
-    
+
     smtp.on("dataReady", function(connection, callback){
         connection.saveStream.end();
         console.log("Incoming message saved to /tmp/message.txt");
@@ -99,13 +105,13 @@ SMTP options can include the following:
 ### Events
 
   * **startData** *(connection)* - DATA stream is opened by the client (`connection` is an object with `from`, `to`, `host` and `remoteAddress` properties)
-  * **data** *(connection, chunk)* - e-mail data chunk is passed from the client 
+  * **data** *(connection, chunk)* - e-mail data chunk is passed from the client
   * **dataReady** *(connection, callback)* - client is finished passing e-mail data, `callback` returns the queue id to the client
   * **authorizeUser** *(connection, username, password, callback)* - will be emitted if `requireAuthentication` option is set to true. `callback` has two parameters *(err, success)* where `success` is Boolean and should be true, if user is authenticated successfully
   * **validateSender** *(connection, email, callback)* - will be emitted if `validateSender` listener is set up
   * **validateRecipient** *(connection, email, callback)* - will be emitted it `validataRecipients` listener is set up
   * **close** *(connection)* - emitted when the connection to client is closed
-  
+
 ## SMTP Client
 
 ### Usage
@@ -116,7 +122,7 @@ where
   * **port** is the port to connect to
   * **host** is the hostname to connect to (defaults to "localhost")
   * **options** is an optional options object (see below)
-  
+
 ### Connection options
 
 The following connection options can be used with `simplesmtp.connect`:
@@ -174,7 +180,7 @@ or alternatively you can send the message with `client.write` calls (you also
 need to call `client.end()` once the message is completed.
 
 If you are piping a stream to the client, do not leave the `'end'` event out,
-this is needed to complete the message sequence by the client. 
+this is needed to complete the message sequence by the client.
 
     client.on("message", function(){
         fs.createReadStream("test.eml").pipe(client);
@@ -227,7 +233,7 @@ To use this feature you can set `XOAuthToken` param as an `auth` option
 
 Alternatively it is also possible to use XOAuthToken generators (supported by Nodemailer) - this
 needs to be an object with a mandatory method `generate` that takes a callback function for
-generating a XOAUTH token string. This is better for generating tokens only when needed - 
+generating a XOAUTH token string. This is better for generating tokens only when needed -
 there is no need to calculate unique token for every e-mail request, since a lot of these
 might share the same connection and thus the cleint needs not to re-authenticate itself
 with another token.
@@ -241,7 +247,7 @@ with another token.
             callback(null, new Buffer(this.token, "utf-8").toString("base64"));
         }
     }
-    
+
     var mailOptions = {
         ...,
         auth:{
@@ -260,7 +266,7 @@ Emitted errors include the reason for failing in the `name` property
   * **RecipientError** - all recipients were rejected (if only some of the recipients are rejected, a `'rcptFailed'` event is raised instead
 
 There's also an additional property in the error object called `data` that includes
-the last response received from the server (if available for the current error type). 
+the last response received from the server (if available for the current error type).
 
 ### About reusing the connection
 
