@@ -131,6 +131,7 @@ The following connection options can be used with `simplesmtp.connect`:
   * **name** - the name of the client server
   * **auth** - authentication object `{user:"...", pass:"..."}` or `{XOAuthToken:"base64data"}`
   * **ignoreTLS** - ignore server support for STARTTLS
+  * **tls** - optional options object for `tls.connect`, also applies to STARTTLS. For example `rejectUnauthorized` is set to `false` by default. You can override this option by setting `tls: {rejectUnauthorized: true}`
   * **debug** - output client and server messages to console
   * **instanceId** - unique instance id for debugging (will be output console with the messages)
 
