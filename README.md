@@ -322,7 +322,7 @@ E-mails can be sent through the pool with
 
 where
 
-  * **mail** is a [MailComposer](/andris9/mailcomposer) compatible object
+  * **mail** is a [MailComposer](https://github.com/andris9/mailcomposer) compatible object
   * **callback** `(error, responseObj)` - is the callback function to run after the message is delivered or an error occured. `responseObj` may include `failedRecipients` which is an array with e-mail addresses that were rejected and `message` which is the last response from the server.
 
 ### Errors
