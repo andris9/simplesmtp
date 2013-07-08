@@ -133,7 +133,7 @@ The following connection options can be used with `simplesmtp.connect`:
   * **ignoreTLS** - ignore server support for STARTTLS
   * **tls** - optional options object for `tls.connect`, also applies to STARTTLS. For example `rejectUnauthorized` is set to `false` by default. You can override this option by setting `tls: {rejectUnauthorized: true}`
   * **debug** - output client and server messages to console
-  * **log_file** - optional filename where communication with remote server has to be logged
+  * **logFile** - optional filename where communication with remote server has to be logged
   * **instanceId** - unique instance id for debugging (will be output console with the messages)
 
 ### Connection events
@@ -313,7 +313,7 @@ The following connection options can be used with `simplesmtp.connect`:
   * **auth** - authentication object `{user:"...", pass:"..."}` or  `{XOAuthToken:"base64data"}`
   * **ignoreTLS** - ignore server support for STARTTLS
   * **debug** - output client and server messages to console
-  * **log_file** - optional filename where communication with remote server has to be logged
+  * **logFile** - optional filename where communication with remote server has to be logged
   * **maxConnections** - how many connections to keep in the pool (defaults to 5)
 
 ### Send an e-mail
