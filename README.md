@@ -134,6 +134,7 @@ The following connection options can be used with `simplesmtp.connect`:
   * **tls** - optional options object for `tls.connect`, also applies to STARTTLS. For example `rejectUnauthorized` is set to `false` by default. You can override this option by setting `tls: {rejectUnauthorized: true}`
   * **debug** - output client and server messages to console
   * **instanceId** - unique instance id for debugging (will be output console with the messages)
+  * **localAddress** - local interface to bind to for network connections (needs Node.js >= 0.11.3 for working with tls)
 
 ### Connection events
 
@@ -313,6 +314,7 @@ The following connection options can be used with `simplesmtp.connect`:
   * **ignoreTLS** - ignore server support for STARTTLS
   * **debug** - output client and server messages to console
   * **maxConnections** - how many connections to keep in the pool (defaults to 5)
+  * **localAddress** - local interface to bind to for network connections (needs Node.js >= 0.11.3 for working with tls)
 
 ### Send an e-mail
 
