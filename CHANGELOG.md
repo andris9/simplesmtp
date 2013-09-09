@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.3.9 2013-09-09
+
+  * Bumped version to 0.3.9
+  * added "use strict" definitions, added new options for client: greetingTimeout, connectionTimeout, rejectUnathorized 51047ae0770562791c62015a8259138741c66935
+  * Do not include localAddress in the options if it is unset 7eb0e8fc6c15bc9f33468b0e98705d1a8ae52070
+
 ## v0.3.8 2013-08-21
 
   * Bumped version to 0.3.8
