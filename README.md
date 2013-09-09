@@ -136,6 +136,9 @@ The following connection options can be used with `simplesmtp.connect`:
   * **logFile** - optional filename where communication with remote server has to be logged
   * **instanceId** - unique instance id for debugging (will be output console with the messages)
   * **localAddress** - local interface to bind to for network connections (needs Node.js >= 0.11.3 for working with tls)
+  * **greetingTimeout** (defaults to 10000) - Time to wait in ms until greeting message is received from the server
+  * **connectionTimeout** (system default if not set) - Time to wait in ms until the socket is opened to the server
+  * **rejectUnathorized** (defaults to false) - if set to true accepts only valid server certificates. You can override this option with the `tls` option, this is just a shorthand
 
 ### Connection events
 
