@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.3.10 2013-09-09
+
+  * Bumped version to 0.3.10
+  * added greetingTimeout, connectionTimeout and rejectUnathorized options to connection pool 8fa55cd3b0ca7bf69ca98b9244a4d2ff7d799b86
+
 ## v0.3.9 2013-09-09
 
   * Bumped version to 0.3.9
