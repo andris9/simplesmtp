@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.3.11 2013-10-22
+
+  * Bumped version to 0.3.11
+  * style update 2095d3a96f027fc9c417bcee8c7aaa7f725adf5e
+  * fix tests 17a3632f875d31f5571ed8aa290138836d32a34e
+  * DSN Support implemented. (irvinzz) d1e8ba29874fac9c44a111371a6cd33c606f0aad
+
 ## v0.3.10 2013-09-09
 
   * Bumped version to 0.3.10
