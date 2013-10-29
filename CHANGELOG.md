@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.3.12 2013-10-29
+
+  * Bumped version to 0.3.12
+  * Allow setting maxMessages to pool 5d185708ab47e93eff50df2a670eb72edbb7ee8c
+
 ## v0.3.11 2013-10-22
 
   * Bumped version to 0.3.11
