@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.3.13 2013-10-29
+
+  * Bumped version to 0.3.13
+  * Handling errors which close connection on or before EHLO (mysz) 03345d4d199b08af17be5980ef086712c9c35cf3
+
 ## v0.3.12 2013-10-29
 
   * Bumped version to 0.3.12
