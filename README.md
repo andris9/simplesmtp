@@ -321,6 +321,7 @@ The following connection options can be used with `simplesmtp.connect`:
   * **logFile** - optional filename where communication with remote server has to be logged
   * **maxConnections** - how many connections to keep in the pool (defaults to 5)
   * **localAddress** - local interface to bind to for network connections (needs Node.js >= 0.11.3 for working with tls)
+  * **maxMessages** - limit the count of messages to send through a single connection (no limit by default)
 
 ### Send an e-mail
 

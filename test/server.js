@@ -12,7 +12,7 @@ if(!netlib.connect && netlib.createConnection){
 
 exports["General tests"] = {
     setUp: function (callback) {
-        
+
         this.smtp = new simplesmtp.createServer({
             SMTPBanner: "SCORPIO",
             name: "MYRDO",
@@ -25,7 +25,7 @@ exports["General tests"] = {
                 callback();
             }
         });
-        
+
     },
     tearDown: function (callback) {
         this.smtp.end(callback);
@@ -36,7 +36,7 @@ exports["General tests"] = {
             test.equal("221",resp.toString("utf-8").trim().substr(0,3));
             test.done();
         });
-        
+
     },
     "HELO": function(test){
         var cmds = ["HELO FOO"];
@@ -44,7 +44,7 @@ exports["General tests"] = {
             test.equal("250",resp.toString("utf-8").trim().substr(0,3));
             test.done();
         });
-        
+
     },
     "HELO fails": function(test){
         var cmds = ["HELO"];
@@ -119,7 +119,7 @@ exports["General tests"] = {
             test.done();
         });
     },
-    "Custom Greeting banner": function(test){        
+    "Custom Greeting banner": function(test){
         var client = netlib.connect(PORT_NUMBER, function(){
             client.on("data", function(chunk){
                 test.equal("SCORPIO", (chunk || "").toString().trim().split(" ").pop());
@@ -162,7 +162,7 @@ exports["General tests"] = {
 
 exports["EHLO setting"] = {
     setUp: function (callback) {
-        
+
         this.smtp = new simplesmtp.createServer({
             disableEHLO: true
         });
@@ -173,7 +173,7 @@ exports["EHLO setting"] = {
                 callback();
             }
         });
-        
+
     },
     tearDown: function (callback) {
         this.smtp.end(callback);
@@ -186,25 +186,25 @@ exports["EHLO setting"] = {
                 test.done();
             });
         });
-        
+
     }
 };
 
 exports["Client disconnect"] = {
 
     "Client disconnect": function(test){
-        
+
         var smtp = new simplesmtp.createServer(),
             clientEnvelope;
         smtp.listen(PORT_NUMBER, function(err){
             if(err){
                 throw err;
             }
-            
+
             runClientMockup(PORT_NUMBER, "localhost", ["EHLO foo", "MAIL FROM:<andris@pangalink.net>", "RCPT TO:<andris@pangalink.net>", "DATA"], function(resp){
                 test.equal("3",resp.toString("utf-8").trim().substr(0,1));
             });
-            
+
         });
         smtp.on("startData", function(envelope){
             clientEnvelope = envelope;
@@ -220,7 +220,7 @@ exports["Client disconnect"] = {
 
 exports["Require AUTH"] = {
     setUp: function (callback) {
-        
+
         this.smtp = new simplesmtp.createServer({requireAuthentication: true});
         this.smtp.listen(PORT_NUMBER, function(err){
             if(err){
@@ -229,11 +229,11 @@ exports["Require AUTH"] = {
                 callback();
             }
         });
-        
+
         this.smtp.on("authorizeUser", function(envelope, username, password, callback){
             callback(null, username=="andris" && password=="test");
         });
-        
+
     },
     tearDown: function (callback) {
         this.smtp.end(callback);
@@ -267,7 +267,7 @@ exports["Require AUTH"] = {
         });
     },
     "AUTH LOGIN Invalid login": function(test){
-        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", "AUTH LOGIN", 
+        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", "AUTH LOGIN",
                     new Buffer("inv").toString("base64"),
                     new Buffer("alid").toString("base64")];
         runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
@@ -276,7 +276,7 @@ exports["Require AUTH"] = {
         });
     },
     "AUTH LOGIN Invalid username": function(test){
-        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", "AUTH LOGIN", 
+        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", "AUTH LOGIN",
                     new Buffer("inv").toString("base64"),
                     new Buffer("test").toString("base64")];
         runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
@@ -285,7 +285,7 @@ exports["Require AUTH"] = {
         });
     },
     "AUTH LOGIN Invalid password": function(test){
-        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", "AUTH LOGIN", 
+        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", "AUTH LOGIN",
                     new Buffer("andris").toString("base64"),
                     new Buffer("alid").toString("base64")];
         runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
@@ -294,7 +294,7 @@ exports["Require AUTH"] = {
         });
     },
     "AUTH LOGIN Login success": function(test){
-        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", "AUTH LOGIN", 
+        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", "AUTH LOGIN",
                     new Buffer("andris").toString("base64"),
                     new Buffer("test").toString("base64")];
         runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
@@ -303,7 +303,7 @@ exports["Require AUTH"] = {
         });
     },
     "AUTH LOGIN Login with username": function(test){
-        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", 
+        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO",
                     "AUTH LOGIN " + new Buffer("andris").toString("base64"),
                     new Buffer("test").toString("base64")];
         runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
@@ -312,7 +312,7 @@ exports["Require AUTH"] = {
         });
     },
     "AUTH LOGIN Login with username - invalid username": function(test){
-        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", 
+        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO",
                     "AUTH LOGIN " + new Buffer("inv").toString("base64"),
                     new Buffer("test").toString("base64")];
         runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
@@ -321,7 +321,7 @@ exports["Require AUTH"] = {
         });
     },
     "AUTH LOGIN Login with username - invalid password": function(test){
-        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", 
+        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO",
                     "AUTH LOGIN " + new Buffer("andris").toString("base64"),
                     new Buffer("inv").toString("base64")];
         runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
@@ -380,7 +380,7 @@ exports["Require AUTH"] = {
 
 exports["Enable AUTH"] = {
     setUp: function (callback) {
-        
+
         this.smtp = new simplesmtp.createServer({enableAuthentication: true});
         this.smtp.listen(PORT_NUMBER, function(err){
             if(err){
@@ -389,11 +389,11 @@ exports["Enable AUTH"] = {
                 callback();
             }
         });
-        
+
         this.smtp.on("authorizeUser", function(envelope, username, password, callback){
             callback(null, username=="andris" && password=="test");
         });
-        
+
     },
     tearDown: function (callback) {
         this.smtp.end(callback);
@@ -427,7 +427,7 @@ exports["Enable AUTH"] = {
         });
     },
     "AUTH LOGIN Invalid login": function(test){
-        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", "AUTH LOGIN", 
+        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", "AUTH LOGIN",
                     new Buffer("inv").toString("base64"),
                     new Buffer("alid").toString("base64")];
         runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
@@ -436,7 +436,7 @@ exports["Enable AUTH"] = {
         });
     },
     "AUTH LOGIN Invalid username": function(test){
-        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", "AUTH LOGIN", 
+        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", "AUTH LOGIN",
                     new Buffer("inv").toString("base64"),
                     new Buffer("test").toString("base64")];
         runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
@@ -445,7 +445,7 @@ exports["Enable AUTH"] = {
         });
     },
     "AUTH LOGIN Invalid password": function(test){
-        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", "AUTH LOGIN", 
+        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", "AUTH LOGIN",
                     new Buffer("andris").toString("base64"),
                     new Buffer("alid").toString("base64")];
         runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
@@ -454,7 +454,7 @@ exports["Enable AUTH"] = {
         });
     },
     "AUTH LOGIN Login success": function(test){
-        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", "AUTH LOGIN", 
+        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", "AUTH LOGIN",
                     new Buffer("andris").toString("base64"),
                     new Buffer("test").toString("base64")];
         runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){

@@ -9,7 +9,7 @@ smtp.listen(25);
 // Set up recipient validation function
 smtp.on("validateRecipient", function(connection, email, done){
     var domain = ((email || "").split("@").pop() || "").toLowerCase().trim();
-    
+
     if(allowedRecipientDomains.indexOf(domain) < 0){
         done(new Error("Invalid domain"));
     }else{
@@ -29,7 +29,7 @@ smtp.on("dataReady", function(connection, done){
     connection.saveStream.end();
     done();
 
-    console.log("Delivered message by " + connection.from + 
-    	" to " + connection.to.join(", ") + ", sent from " + connection.host + 
-    	" (" + connection.remoteAddress + ")");
+    console.log("Delivered message by " + connection.from +
+        " to " + connection.to.join(", ") + ", sent from " + connection.host +
+        " (" + connection.remoteAddress + ")");
 });
