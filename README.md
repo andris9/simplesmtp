@@ -149,7 +149,7 @@ Once a connection is set up the following events can be listened to:
   * **'message'** - the envelope is passed successfully to the server and a message stream can be started
   * **'ready'** `(success)` - the message was sent
   * **'rcptFailed'** `(addresses)` - not all recipients were accepted (invalid addresses are included as an array)
-  * **'error'** `(err)` - An error occurred. The connection is closed and an 'end' event is emitted shortly
+  * **'error'** `(err, stage)` - An error occurred. The connection is closed and an 'end' event is emitted shortly. Second argument indicates on which SMTP session stage an error occured.
   * **'end'** - connection to the client is closed
 
 ### Sending an envelope
