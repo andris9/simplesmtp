@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.3.15 2013-11-15
+
+  * Bumped version to 0.3.15
+  * Fixed bugs in connection timeout implementation (finian) [1a25d5af]
+
+
 ## v0.3.14 2013-11-08
 
   * Bumped version to 0.3.14
