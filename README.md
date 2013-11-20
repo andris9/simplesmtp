@@ -116,7 +116,7 @@ SMTP options can include the following:
 
 ### Usage
 
-SMTP client can be created with `simplesmptp.connect(port[,host][, options])`
+SMTP client can be created with `simplesmtp.connect(port[,host][, options])`
 where
 
   * **port** is the port to connect to
