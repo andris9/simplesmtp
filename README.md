@@ -19,7 +19,7 @@ Current version of simplesmtp is fully supported for Node v0.8+
 
 ## Simple SMTP server
 
-For a simple inbound only, no authentication SMT server you can use
+For a simple inbound only, no authentication SMTP server you can use
 
     simplesmtp.createSimpleServer([options], requestListener).listen(port);
 
