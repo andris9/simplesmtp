@@ -1,10 +1,16 @@
 # CHANGELOG
 
+## v0.3.16 2013-12-02
+
+  * Bumped version to 0.3.16
+  * Expose simplesmtp version number [c2382203]
+  * typo in SMTP (chrisdew) [6c39a8d7]
+  * Fix typo in README.md (Meekohi) [597a25cb]
+
 ## v0.3.15 2013-11-15
 
   * Bumped version to 0.3.15
   * Fixed bugs in connection timeout implementation (finian) [1a25d5af]
-
 
 ## v0.3.14 2013-11-08
 
