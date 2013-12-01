@@ -1,11 +1,20 @@
 var testCase = require('nodeunit').testCase,
     runClientMockup = require("rai").runClientMockup,
     simplesmtp = require("../index"),
+    packageData = require("../package.json"),
     fs = require("fs");
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
 
 var PORT_NUMBER = 8397;
+
+exports["Version test"] = {
+    "Should expose version number": function(test){
+        test.ok(simplesmtp.version);
+        test.equal(simplesmtp.version, packageData.version);
+        test.done();
+    }
+}
 
 exports["General tests"] = {
     setUp: function (callback) {
