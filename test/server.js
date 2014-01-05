@@ -16,7 +16,8 @@ exports["General tests"] = {
         this.smtp = new simplesmtp.createServer({
             SMTPBanner: "SCORPIO",
             name: "MYRDO",
-            maxSize: 1234
+            maxSize: 1234,
+            maxClients: 1,
         });
         this.smtp.listen(PORT_NUMBER, function(err){
             if(err){
@@ -157,7 +158,21 @@ exports["General tests"] = {
             test.ok(resp.toString("utf-8").trim().match(/^250[\- ]SIZE 1234$/mi));
             test.done();
         });
-    }
+    },
+    "Max Incoming Connections": function(test) {
+        var maxClients = this.smtp.options.maxClients,
+            name = this.smtp.options.name;
+
+        for (var i = 0; i <= maxClients; i++) {
+            runClientMockup(PORT_NUMBER, "localhost", [], (function(i) {
+                return function(resp) {
+                    if (i < maxClients) return;
+                    test.ok((new RegExp("^421\\s+" + name)).test(resp.toString("utf-8").trim()));
+                    test.done();
+                }
+            })(i));
+        }
+    },
 };
 
 exports["EHLO setting"] = {
