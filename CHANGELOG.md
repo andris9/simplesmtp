@@ -1,5 +1,10 @@
 # CHANGELOG
 
+  * Bumped version to 0.3.17
+  * Do not create a server instance with invalid socket (47d17420)
+  * typo (chrisdew) [fe4df83f]
+  * Only emit rcptFailed if there actually was an address that was rejected [4c75523f]
+
 ## v0.3.16 2013-12-02
 
   * Bumped version to 0.3.16
