@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.3.18 2014-01-05
+
+  * Bumped version to 0.3.18
+  * Added limiting of max client connections (garbetjie) [bcd5c0b3]
+
+## v0.3.17 2014-01-05
+
   * Bumped version to 0.3.17
   * Do not create a server instance with invalid socket (47d17420)
   * typo (chrisdew) [fe4df83f]
