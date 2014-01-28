@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.3.19 2014-01-28
+
+  * Bumped version to 0.3.19
+  * Prefer setImmediate over nextTick if available [f53e2d44]
+  * Server: Implemented "NOOP" command (codingphil) [707485c0]
+  * Server: Allow SIZE with MAIL [3b404028]
+
 ## v0.3.18 2014-01-05
 
   * Bumped version to 0.3.18
