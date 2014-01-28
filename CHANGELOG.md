@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.3.20 2014-01-28
+
+  * Bumped version to 0.3.20
+  * Re-emit 'drain' from tcp socket [5bfb1fcc]
+
 ## v0.3.19 2014-01-28
 
   * Bumped version to 0.3.19
