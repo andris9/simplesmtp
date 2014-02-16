@@ -1,5 +1,8 @@
 # CHANGELOG
 
+  * Bumped version to 0.3.21
+  * Ignore OAuth errors from destroyed connections (SLaks) [d50a7571]
+
 ## v0.3.20 2014-01-28
 
   * Bumped version to 0.3.20
