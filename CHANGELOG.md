@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.3.22 2014-02-16
+
+  * Bumped version to 0.3.22
+  * Emit error on unexpected close [111da167]
+  * Allowed persistence of custom properties when resetting envelope state. (garbetjie) [b49b7ead]
+
+## v0.3.21 2014-02-16
+
   * Bumped version to 0.3.21
   * Ignore OAuth errors from destroyed connections (SLaks) [d50a7571]
 
