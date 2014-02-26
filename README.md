@@ -140,7 +140,7 @@ The following connection options can be used with `simplesmtp.connect`:
   * **connectionTimeout** (system default if not set) - Time to wait in ms until the socket is opened to the server
   * **rejectUnathorized** (defaults to false) - if set to true accepts only valid server certificates. You can override this option with the `tls` option, this is just a shorthand
   * **dsn** - An object with methods `success`, `failure` and `delay`. If any of these are set to true, DSN will be used
-  * **disableDotEscaping** set to true if you want to bypass the dot escaping at the begining of each line. Default to false
+  * **enableDotEscaping** set to true if you want to escape dots at the begining of each line. Defaults to false.
 
 ### Connection events
 
