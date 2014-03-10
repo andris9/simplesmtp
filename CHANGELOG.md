@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.3.23 2014-03-10
+
+  * Bumped version to 0.3.23
+  * removed pipelining [4f0a382f]
+  * Rename disableDotEscaping to enableDotEscaping [5534bd85]
+  * Ignore OAuth2 errors from destroyed connections (SLaks) [e8ff3356]
+
 ## v0.3.22 2014-02-16
 
   * Bumped version to 0.3.22
