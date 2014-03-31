@@ -568,7 +568,7 @@ exports["ignoreTLS"] = {
                     "MAIL FROM:<d3ph@github.com>",
                     "RCPT TO:<andris@pangalink.net>",
                     "DATA",
-                    "Test mail\015\012.\015\012",
+                    "Test mail\r\n.\r\n",
                     ];
         runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
             var resp = resp.toString("utf-8").trim();
@@ -618,7 +618,7 @@ exports["Sending mail listen for dataReady"] = {
                     "MAIL FROM:<d3ph@github.com>",
                     "RCPT TO:<andris@pangalink.net>",
                     "DATA",
-                    "Test mail with spam!\015\012.\015\012",
+                    "Test mail with spam!\r\n.\r\n",
                     ];
         runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
             test.equal("550 FAILED",resp.toString("utf-8").trim());
@@ -630,7 +630,7 @@ exports["Sending mail listen for dataReady"] = {
                     "MAIL FROM:<d3ph@github.com>",
                     "RCPT TO:<andris@pangalink.net>",
                     "DATA",
-                    "Clear mail body\015\012.\015\012",
+                    "Clear mail body\r\n.\r\n",
                     ];
         runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
             var resp = resp.toString("utf-8").trim();
