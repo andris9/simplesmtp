@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.3.24 2014-03-31
+
+  * Bumped version to 0.3.24
+  * Added test for empty MAIL FROM [7f17174d]
+  * Allow null return sender in mail command (coxeh) [08bc6a6f]
+  * incorrect mail format fix (siterra) [d42d364e]
+  * support for `form` and `to` structure: {address:"...",name:"..."} siterra) [2b054740]
+  * Improved auth supports detection (finian) [863dc019]
+  * Fixed a Buffer building bug (finian) [6dc9a4e2]
+
 ## v0.3.23 2014-03-10
 
   * Bumped version to 0.3.23
