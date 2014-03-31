@@ -1,3 +1,5 @@
+"use strict";
+
 var testCase = require('nodeunit').testCase,
     runClientMockup = require("rai").runClientMockup,
     simplesmtp = require("../index"),

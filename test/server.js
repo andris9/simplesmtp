@@ -1,3 +1,5 @@
+"use strict";
+
 var testCase = require('nodeunit').testCase,
     runClientMockup = require("rai").runClientMockup,
     simplesmtp = require("../index"),
@@ -634,6 +636,37 @@ exports["Sending mail listen for dataReady"] = {
             var resp = resp.toString("utf-8").trim();
             test.equal("2",resp.substr(0,1));
             test.ok(resp.match('#ID'));
+            test.done();
+        });
+    }
+}
+
+exports["Sending mail listen for dataReady"] = {
+    setUp: function (callback) {
+        var data = "";
+
+        this.smtp = new simplesmtp.createServer({ignoreTLS: true, disableDNSValidation: true});
+        this.smtp.listen(PORT_NUMBER, function(err){
+            if(err){
+                throw err;
+            }else{
+                callback();
+            }
+        });
+
+        this.smtp.on("data", function(envelope, chunk){
+            data += chunk;
+        });
+    },
+
+    tearDown: function (callback) {
+        this.smtp.end(callback);
+    },
+
+    "Allow empty Mail from": function(test){
+        var cmds = ["EHLO FOO", "MAIL FROM:<>"];
+        runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
+            test.equal("2",resp.toString("utf-8").trim().substr(0,1));
             test.done();
         });
     }

@@ -1,10 +1,10 @@
-var testCase = require('nodeunit').testCase,
-    runClientMockup = require("rai").runClientMockup,
-    simplesmtp = require("../index"),
+"use strict";
+
+var simplesmtp = require("../index"),
     packageData = require("../package.json"),
     fs = require("fs");
 
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 var PORT_NUMBER = 8397;
 
@@ -14,7 +14,7 @@ exports["Version test"] = {
         test.equal(simplesmtp.version, packageData.version);
         test.done();
     }
-}
+};
 
 exports["General tests"] = {
     setUp: function (callback) {
@@ -42,7 +42,7 @@ exports["General tests"] = {
             client.close();
         });
 
-        client.on("error", function(err){
+        client.on("error", function(){
             test.ok(false);
         });
 
@@ -82,7 +82,7 @@ exports["Secure server"] = {
             client.close();
         });
 
-        client.on("error", function(err){
+        client.on("error", function(){
             test.ok(false);
         });
 
@@ -137,7 +137,7 @@ exports["Disabled EHLO"] = {
             client.close();
         });
 
-        client.on("error", function(err){
+        client.on("error", function(){
             test.ok(false);
         });
 

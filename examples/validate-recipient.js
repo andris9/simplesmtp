@@ -1,3 +1,5 @@
+"use strict";
+
 var simplesmtp = require("simplesmtp"),
     fs = require("fs");
 

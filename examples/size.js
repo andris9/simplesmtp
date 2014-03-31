@@ -1,3 +1,5 @@
+"use strict";
+
 var simplesmtp = require("../index"),
     fs = require("fs");
 
@@ -14,7 +16,7 @@ smtp.listen(25);
 
 // Set up sender validation function
 smtp.on("validateSender", function(connection, email, done){
-    console.log(1, connection.messageSize, maxMessageSize)
+    console.log(1, connection.messageSize, maxMessageSize);
     // SIZE value can be found from connection.messageSize
     if(connection.messageSize > maxMessageSize){
         var err = new Error("Max space reached");

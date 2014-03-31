@@ -1,3 +1,5 @@
+"use strict";
+
 //console.log(process.stdout.writable);
 var simplesmtp = require("../index");
 
