@@ -160,7 +160,10 @@ exports["General tests"] = {
             test.ok(resp.toString("utf-8").trim().match(/^250[\- ]SIZE 1234$/mi));
             test.done();
         });
-    },
+    }
+    /*,
+
+    // test disabled due to race conditions (returned false positives if connections are created in non expected order)
     "Max Incoming Connections": function(test) {
         var maxClients = this.smtp.options.maxClients,
             name = this.smtp.options.name;
@@ -175,6 +178,7 @@ exports["General tests"] = {
             })(i));
         }
     },
+    */
 };
 
 exports["EHLO setting"] = {
