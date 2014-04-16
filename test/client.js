@@ -49,6 +49,29 @@ exports["General tests"] = {
         client.on("end", function(){
             test.done();
         });
+    },
+
+    "socketTimeout": function(test){
+        var client = simplesmtp.connect(PORT_NUMBER, false, {socketTimeout: 500});
+
+        var waitTimeout = setTimeout(function(){
+            test.ok(false);
+            test.done();
+        }, 2000);
+
+        client.once("idle", function(){
+            // Client is ready to take messages
+            test.ok(true);
+        });
+
+        client.on("error", function(err){
+            test.ifError(err);
+        });
+
+        client.on("end", function(){
+            clearTimeout(waitTimeout);
+            test.done();
+        });
     }
 };
 
