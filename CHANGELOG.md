@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.3.24 2014-04-16
+
+  * Bumped version to 0.3.25
+  * disabled server test for max incoming connections [476f8cf5]
+  * Added socketTimeout option [b83a4838]
+  * fix invalid tests [cf22d390]
+
 ## v0.3.24 2014-03-31
 
   * Bumped version to 0.3.24
