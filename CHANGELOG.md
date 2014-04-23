@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.3.26 2014-04-23
+
+  * Bumped version to 0.3.26
+  * Server: Added support for XOAUTH2 authentication [87b6ed66]
+  * Client: Use interval NOOPing to keep the connection up [184d8623]
+  * Client: do not throw if recipients are note set [785a2b09]
+
 ## v0.3.25 2014-04-16
 
   * Bumped version to 0.3.25
