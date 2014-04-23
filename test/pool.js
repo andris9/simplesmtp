@@ -234,45 +234,6 @@ exports["Auth fail tests"] = {
                 test.done();
             });
         });
-
-    },
-
-    "Authentication error several times": function(test){
-        var total = 10;
-        test.expect(total);
-
-        var pool = simplesmtp.createClientPool(PORT_NUMBER, false, {
-                auth: {
-                    "user": "test1",
-                    "pass": "test2"
-                }
-            }),
-            mc;
-        this.server.on("dataReady", function(envelope, callback){
-            process.nextTick(function(){callback(new Error("Spam!"));});
-        });
-
-        var completed = 0;
-        for(var i=0; i<total; i++){
-            mc = new MailComposer({escapeSMTP: true});
-            mc.setMessageOption({
-                from: "andmekala@hot.ee",
-                to: "andris@pangalink.net",
-                subject:"Hello!",
-                body: "Hello world!",
-                html: "<b>Hello world!</b>"
-            });
-
-            pool.sendMail(mc, function(error){
-                test.equal(error && error.name, "AuthError");
-                completed++;
-                if(completed >= total){
-                    pool.close(function(){
-                        test.done();
-                    });
-                }
-            });
-        }
     }
 };
 
