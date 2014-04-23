@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.3.27 2014-04-23
+
+  * Bumped version to 0.3.27
+  * get tests running in node 0.8, 0.10, 0.11 [9b3f9043..833388d5]
+
 ## v0.3.26 2014-04-23
 
   * Bumped version to 0.3.26
