@@ -24,7 +24,7 @@
         }
     ],
     "dependencies": {
-        "rai": "~0.1",
+        "rai": "^0.1.10",
         "xoauth2": "~0.1"
     },
     "devDependencies": {

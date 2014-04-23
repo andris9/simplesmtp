@@ -242,7 +242,7 @@ exports["Client disconnect"] = {
 exports["Require AUTH"] = {
     setUp: function (callback) {
 
-        this.smtp = new simplesmtp.createServer({requireAuthentication: true});
+        this.smtp = new simplesmtp.createServer({requireAuthentication: true, authMethods: ["PLAIN", "LOGIN", "XOAUTH2"]});
         this.smtp.listen(PORT_NUMBER, function(err){
             if(err){
                 throw err;
@@ -394,6 +394,31 @@ exports["Require AUTH"] = {
                     new Buffer("andris\u0000andris\u0000test").toString("base64")];
         runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
             test.equal("2",resp.toString("utf-8").trim().substr(0,1));
+            test.done();
+        });
+    },
+    "AUTH XOAUTH2 Login success": function(test){
+        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", "AUTH XOAUTH2 " +
+            new Buffer([
+                'user=andris',
+                'auth=Bearer test',
+                '',
+                '\n' ].join('\x01')).toString("base64")];
+        runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
+            test.equal("2",resp.toString("utf-8").trim().substr(0,1));
+            test.done();
+        });
+    },
+    "AUTH XOAUTH2 Login fail": function(test){
+        var cmds = ["EHLO FOO", "STARTTLS", "EHLO FOO", "AUTH XOAUTH2 " +
+            new Buffer([
+                'user=andris',
+                'auth=Bearer test2',
+                '',
+                '\n' ].join('\x01')).toString("base64"),
+            ""];
+        runClientMockup(PORT_NUMBER, "localhost", cmds, function(resp){
+            test.equal("5",resp.toString("utf-8").trim().substr(0,1));
             test.done();
         });
     }
