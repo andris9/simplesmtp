@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.3.28 2014-05-03
+
+  * Bumped version to 0.3.28
+  * handle errors with NOOP [deb18352]
+
 ## v0.3.27 2014-04-23
 
   * Bumped version to 0.3.27
