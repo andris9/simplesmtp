@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.3.29 2014-05-07
+
+  * Bumped version to 0.3.29
+  * Changed formatting rules, use single quotes instead of double quotes [92b581c8]
+  * rollback NOOP usage [e47e24bb]
+
 ## v0.3.28 2014-05-03
 
   * Bumped version to 0.3.28
