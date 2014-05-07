@@ -1,85 +1,88 @@
-"use strict";
+'use strict';
 
-var testCase = require('nodeunit').testCase,
-    runClientMockup = require("rai").runClientMockup,
-    simplesmtp = require("../index"),
-    MailComposer = require("mailcomposer").MailComposer,
-    fs = require("fs");
+/* jshint loopfunc: true */
+
+var simplesmtp = require('../index'),
+    MailComposer = require('mailcomposer').MailComposer;
 
 var PORT_NUMBER = 8397;
 
-exports["General tests"] = {
-    setUp: function (callback) {
+exports['General tests'] = {
+    setUp: function(callback) {
         this.server = new simplesmtp.createServer({});
-        this.server.listen(PORT_NUMBER, function(err){
-            if(err){
+        this.server.listen(PORT_NUMBER, function(err) {
+            if (err) {
                 throw err;
-            }else{
+            } else {
                 callback();
             }
         });
 
     },
 
-    tearDown: function (callback) {
+    tearDown: function(callback) {
         this.server.end(callback);
     },
 
-    "Send single message": function(test){
+    'Send single message': function(test) {
 
         var pool = simplesmtp.createClientPool(PORT_NUMBER),
-            mc = new MailComposer({escapeSMTP: true});
+            mc = new MailComposer({
+                escapeSMTP: true
+            });
 
         mc.setMessageOption({
-            from: "andmekala@hot.ee",
-            to: "andris@pangalink.net",
-            subject:"Hello!",
-            body: "Hello world!",
-            html: "<b>Hello world!</b>"
+            from: 'andmekala@hot.ee',
+            to: 'andris@pangalink.net',
+            subject: 'Hello!',
+            body: 'Hello world!',
+            html: '<b>Hello world!</b>'
         });
 
-        this.server.on("dataReady", function(envelope, callback){
+        this.server.on('dataReady', function(envelope, callback) {
             test.ok(true);
             callback();
         });
 
-        pool.sendMail(mc, function(error){
+        pool.sendMail(mc, function(error) {
             test.ifError(error);
-            pool.close(function(){
+            pool.close(function() {
                 test.ok(true);
                 test.done();
             });
         });
     },
 
-    "Send several messages": function(test){
+    'Send several messages': function(test) {
         var total = 10;
 
-        test.expect(total*2);
+        test.expect(total * 2);
 
         var pool = simplesmtp.createClientPool(PORT_NUMBER),
             mc;
 
-        this.server.on("dataReady", function(envelope, callback){
+        this.server.on('dataReady', function(envelope, callback) {
             process.nextTick(callback);
         });
 
         var completed = 0;
-        for(var i=0; i<total; i++){
-            mc = new MailComposer({escapeSMTP: true});
-            mc.setMessageOption({
-                from: "andmekala@hot.ee",
-                to: "andris@pangalink.net",
-                subject:"Hello!",
-                body: "Hello world!",
-                html: "<b>Hello world!</b>"
+        for (var i = 0; i < total; i++) {
+            mc = new MailComposer({
+                escapeSMTP: true
             });
-            pool.sendMail(mc, function(error){
+            mc.setMessageOption({
+                from: 'andmekala@hot.ee',
+                to: 'andris@pangalink.net',
+                subject: 'Hello!',
+                body: 'Hello world!',
+                html: '<b>Hello world!</b>'
+            });
+            pool.sendMail(mc, function(error) {
                 test.ifError(error);
                 test.ok(true);
                 completed++;
-                if(completed >= total){
-                    pool.close(function(){
+                if (completed >= total) {
+                    pool.close(function() {
                         test.done();
                     });
                 }
@@ -87,34 +90,36 @@ exports["General tests"] = {
         }
     },
 
-    "Delivery error once": function(test){
+    'Delivery error once': function(test) {
 
         var pool = simplesmtp.createClientPool(PORT_NUMBER),
-            mc = new MailComposer({escapeSMTP: true});
+            mc = new MailComposer({
+                escapeSMTP: true
+            });
 
         mc.setMessageOption({
-            from: "andmekala@hot.ee",
-            to: "andris@pangalink.net",
-            subject:"Hello!",
-            body: "Hello world!",
-            html: "<b>Hello world!</b>"
+            from: 'andmekala@hot.ee',
+            to: 'andris@pangalink.net',
+            subject: 'Hello!',
+            body: 'Hello world!',
+            html: '<b>Hello world!</b>'
         });
 
-        this.server.on("dataReady", function(envelope, callback){
+        this.server.on('dataReady', function(envelope, callback) {
             test.ok(true);
-            callback(new Error("Spam!"));
+            callback(new Error('Spam!'));
         });
 
-        pool.sendMail(mc, function(error){
-            test.equal(error && error.name, "DeliveryError");
-            pool.close(function(){
+        pool.sendMail(mc, function(error) {
+            test.equal(error && error.name, 'DeliveryError');
+            pool.close(function() {
                 test.ok(true);
                 test.done();
             });
         });
     },
 
-    "Delivery error several times": function(test){
+    'Delivery error several times': function(test) {
         var total = 10;
 
         test.expect(total);
@@ -122,26 +127,30 @@ exports["General tests"] = {
         var pool = simplesmtp.createClientPool(PORT_NUMBER),
             mc;
 
-        this.server.on("dataReady", function(envelope, callback){
-            process.nextTick(function(){callback(new Error("Spam!"));});
+        this.server.on('dataReady', function(envelope, callback) {
+            process.nextTick(function() {
+                callback(new Error('Spam!'));
+            });
         });
 
         var completed = 0;
-        for(var i=0; i<total; i++){
-            mc = new MailComposer({escapeSMTP: true});
+        for (var i = 0; i < total; i++) {
+            mc = new MailComposer({
+                escapeSMTP: true
+            });
             mc.setMessageOption({
-                from: "andmekala@hot.ee",
-                to: "andris@pangalink.net",
-                subject:"Hello!",
-                body: "Hello world!",
-                html: "<b>Hello world!</b>"
+                from: 'andmekala@hot.ee',
+                to: 'andris@pangalink.net',
+                subject: 'Hello!',
+                body: 'Hello world!',
+                html: '<b>Hello world!</b>'
             });
 
-            pool.sendMail(mc, function(error){
-                test.equal(error && error.name, "DeliveryError");
+            pool.sendMail(mc, function(error) {
+                test.equal(error && error.name, 'DeliveryError');
                 completed++;
-                if(completed >= total){
-                    pool.close(function(){
+                if (completed >= total) {
+                    pool.close(function() {
                         test.done();
                     });
                 }
@@ -150,54 +159,56 @@ exports["General tests"] = {
     }
 };
 
-exports["Auth fail tests"] = {
-    setUp: function (callback) {
+exports['Auth fail tests'] = {
+    setUp: function(callback) {
         this.server = new simplesmtp.createServer({
             requireAuthentication: true
         });
 
-        this.server.listen(PORT_NUMBER, function(err){
-            if(err){
+        this.server.listen(PORT_NUMBER, function(err) {
+            if (err) {
                 throw err;
-            }else{
+            } else {
                 callback();
             }
         });
 
-        this.server.on("authorizeUser", function(envelope, username, password, callback){
+        this.server.on('authorizeUser', function(envelope, username, password, callback) {
             callback(null, username == password);
         });
     },
 
-    tearDown: function (callback) {
+    tearDown: function(callback) {
         this.server.end(callback);
     },
 
-    "Authentication passes once": function(test){
+    'Authentication passes once': function(test) {
         var pool = simplesmtp.createClientPool(PORT_NUMBER, false, {
-                auth: {
-                    "user": "test",
-                    "pass": "test"
-                }
-            }),
-            mc = new MailComposer({escapeSMTP: true});
+            auth: {
+                'user': 'test',
+                'pass': 'test'
+            }
+        }),
+            mc = new MailComposer({
+                escapeSMTP: true
+            });
 
         mc.setMessageOption({
-            from: "andmekala2@hot.ee",
-            to: "andris2@pangalink.net",
-            subject:"Hello2!",
-            body: "Hello2 world!",
-            html: "<b>Hello2 world!</b>"
+            from: 'andmekala2@hot.ee',
+            to: 'andris2@pangalink.net',
+            subject: 'Hello2!',
+            body: 'Hello2 world!',
+            html: '<b>Hello2 world!</b>'
         });
 
-        this.server.on("dataReady", function(envelope, callback){
+        this.server.on('dataReady', function(envelope, callback) {
             test.ok(true);
             callback();
         });
 
-        pool.sendMail(mc, function(error){
+        pool.sendMail(mc, function(error) {
             test.ifError(error);
-            pool.close(function(){
+            pool.close(function() {
                 test.ok(true);
                 test.done();
             });
@@ -205,31 +216,33 @@ exports["Auth fail tests"] = {
 
     },
 
-    "Authentication error once": function(test){
+    'Authentication error once': function(test) {
         var pool = simplesmtp.createClientPool(PORT_NUMBER, false, {
-                auth: {
-                    "user": "test1",
-                    "pass": "test2"
-                }
-            }),
-            mc = new MailComposer({escapeSMTP: true});
+            auth: {
+                'user': 'test1',
+                'pass': 'test2'
+            }
+        }),
+            mc = new MailComposer({
+                escapeSMTP: true
+            });
 
         mc.setMessageOption({
-            from: "andmekala2@hot.ee",
-            to: "andris2@pangalink.net",
-            subject:"Hello2!",
-            body: "Hello2 world!",
-            html: "<b>Hello2 world!</b>"
+            from: 'andmekala2@hot.ee',
+            to: 'andris2@pangalink.net',
+            subject: 'Hello2!',
+            body: 'Hello2 world!',
+            html: '<b>Hello2 world!</b>'
         });
 
-        this.server.on("dataReady", function(envelope, callback){
+        this.server.on('dataReady', function(envelope, callback) {
             test.ok(true);
             callback();
         });
 
-        pool.sendMail(mc, function(error){
-            test.equal(error && error.name, "AuthError");
-            pool.close(function(){
+        pool.sendMail(mc, function(error) {
+            test.equal(error && error.name, 'AuthError');
+            pool.close(function() {
                 test.ok(true);
                 test.done();
             });
@@ -237,58 +250,60 @@ exports["Auth fail tests"] = {
     }
 };
 
-exports["Max messages"] = {
-    setUp: function (callback) {
+exports['Max messages'] = {
+    setUp: function(callback) {
         this.server = new simplesmtp.createServer({});
-        this.server.listen(PORT_NUMBER, function(err){
-            if(err){
+        this.server.listen(PORT_NUMBER, function(err) {
+            if (err) {
                 throw err;
-            }else{
+            } else {
                 callback();
             }
         });
 
     },
 
-    tearDown: function (callback) {
+    tearDown: function(callback) {
         this.server.end(callback);
     },
 
-    "Limit 1": function(test){
+    'Limit 1': function(test) {
         var total = 10;
 
         test.expect(total * 3);
 
         var pool = simplesmtp.createClientPool(PORT_NUMBER, false, {
-                maxMessages: 1,
-                maxConnections: 1
-            }),
+            maxMessages: 1,
+            maxConnections: 1
+        }),
             mc;
 
-        pool.on("released", function(){
+        pool.on('released', function() {
             test.ok(1);
         });
 
-        this.server.on("dataReady", function(envelope, callback){
+        this.server.on('dataReady', function(envelope, callback) {
             process.nextTick(callback);
         });
 
         var completed = 0;
-        for(var i=0; i<total; i++){
-            mc = new MailComposer({escapeSMTP: true});
-            mc.setMessageOption({
-                from: "andmekala@hot.ee",
-                to: "andris@pangalink.net",
-                subject:"Hello!",
-                body: "Hello world!",
-                html: "<b>Hello world!</b>"
+        for (var i = 0; i < total; i++) {
+            mc = new MailComposer({
+                escapeSMTP: true
             });
-            pool.sendMail(mc, function(error){
+            mc.setMessageOption({
+                from: 'andmekala@hot.ee',
+                to: 'andris@pangalink.net',
+                subject: 'Hello!',
+                body: 'Hello world!',
+                html: '<b>Hello world!</b>'
+            });
+            pool.sendMail(mc, function(error) {
                 test.ifError(error);
                 test.ok(true);
                 completed++;
-                if(completed >= total){
-                    pool.close(function(){
+                if (completed >= total) {
+                    pool.close(function() {
                         test.done();
                     });
                 }
@@ -296,41 +311,43 @@ exports["Max messages"] = {
         }
     },
 
-    "Limit 2": function(test){
+    'Limit 2': function(test) {
         var total = 10;
 
         test.expect(total * 2 + 5);
 
         var pool = simplesmtp.createClientPool(PORT_NUMBER, false, {
-                maxMessages: 2,
-                maxConnections: 1
-            }),
+            maxMessages: 2,
+            maxConnections: 1
+        }),
             mc;
 
-        pool.on("released", function(){
+        pool.on('released', function() {
             test.ok(1);
         });
 
-        this.server.on("dataReady", function(envelope, callback){
+        this.server.on('dataReady', function(envelope, callback) {
             process.nextTick(callback);
         });
 
         var completed = 0;
-        for(var i=0; i<total; i++){
-            mc = new MailComposer({escapeSMTP: true});
-            mc.setMessageOption({
-                from: "andmekala@hot.ee",
-                to: "andris@pangalink.net",
-                subject:"Hello!",
-                body: "Hello world!",
-                html: "<b>Hello world!</b>"
+        for (var i = 0; i < total; i++) {
+            mc = new MailComposer({
+                escapeSMTP: true
             });
-            pool.sendMail(mc, function(error){
+            mc.setMessageOption({
+                from: 'andmekala@hot.ee',
+                to: 'andris@pangalink.net',
+                subject: 'Hello!',
+                body: 'Hello world!',
+                html: '<b>Hello world!</b>'
+            });
+            pool.sendMail(mc, function(error) {
                 test.ifError(error);
                 test.ok(true);
                 completed++;
-                if(completed >= total){
-                    pool.close(function(){
+                if (completed >= total) {
+                    pool.close(function() {
                         test.done();
                     });
                 }
@@ -338,40 +355,42 @@ exports["Max messages"] = {
         }
     },
 
-    "No limit": function(test){
+    'No limit': function(test) {
         var total = 10;
 
         test.expect(total * 2);
 
         var pool = simplesmtp.createClientPool(PORT_NUMBER, false, {
-                maxConnections: 1
-            }),
+            maxConnections: 1
+        }),
             mc;
 
-        pool.on("released", function(){
+        pool.on('released', function() {
             test.ok(1);
         });
 
-        this.server.on("dataReady", function(envelope, callback){
+        this.server.on('dataReady', function(envelope, callback) {
             process.nextTick(callback);
         });
 
         var completed = 0;
-        for(var i=0; i<total; i++){
-            mc = new MailComposer({escapeSMTP: true});
-            mc.setMessageOption({
-                from: "andmekala@hot.ee",
-                to: "andris@pangalink.net",
-                subject:"Hello!",
-                body: "Hello world!",
-                html: "<b>Hello world!</b>"
+        for (var i = 0; i < total; i++) {
+            mc = new MailComposer({
+                escapeSMTP: true
             });
-            pool.sendMail(mc, function(error){
+            mc.setMessageOption({
+                from: 'andmekala@hot.ee',
+                to: 'andris@pangalink.net',
+                subject: 'Hello!',
+                body: 'Hello world!',
+                html: '<b>Hello world!</b>'
+            });
+            pool.sendMail(mc, function(error) {
                 test.ifError(error);
                 test.ok(true);
                 completed++;
-                if(completed >= total){
-                    pool.close(function(){
+                if (completed >= total) {
+                    pool.close(function() {
                         test.done();
                     });
                 }
