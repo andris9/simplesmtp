@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.3.30 2014-05-13
+
+  * Bumped version to 0.3.30
+  * Added .npmignore [a7344b49]
+
 ## v0.3.29 2014-05-07
 
   * Bumped version to 0.3.29
