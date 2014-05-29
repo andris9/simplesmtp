@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.3.32 2014-05-30
+
+  * Bumped version to 0.3.32
+  * ignore close if end was already called [004ebaee]
+
 ## v0.3.30 2014-05-13
 
   * Bumped version to 0.3.30
