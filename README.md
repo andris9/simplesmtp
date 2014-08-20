@@ -76,6 +76,7 @@ SMTP options can include the following:
   * **disableEHLO** - if set to true, support HELO command only
   * **ignoreTLS** - if set to true, allow client do not use STARTTLS
   * **disableDNSValidation** - if set, do not validate sender domains
+  * **disableSTARTTLS** - if set, do not use STARTTLS
 
 ### Example
 
