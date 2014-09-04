@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.3.33 2014-09-04
+
+  * Bumped version to 0.3.33
+  * Added deprecation notice
+
 ## v0.3.32 2014-05-30
 
   * Bumped version to 0.3.32

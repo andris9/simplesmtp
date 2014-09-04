@@ -1,5 +1,15 @@
 # simplesmtp
 
+## DEPRECATION NOTICE
+
+This module is deprecated for production use. For SMTP servers use [Haraka](https://www.npmjs.org/package/Haraka), for SMTP clients use [smtp-connection](https://www.npmjs.org/package/smtp-connection).
+
+Simplesmtp is a module written for Node v0.6 and slightly updated for Node v0.8. It does not use Node v0.10 streams and probably is going to have a rocky future with Node v0.12. I do not have time to keep it up to date, the thing probably needs a major rewrite for Node v0.12.
+
+Should be fine though for integration testing purposes.
+
+## Info
+
 This is a module to easily create custom SMTP servers and clients - use SMTP as a first class protocol in Node.JS!
 
 [![Build Status](https://secure.travis-ci.org/andris9/simplesmtp.png)](http://travis-ci.org/andris9/simplesmtp)
