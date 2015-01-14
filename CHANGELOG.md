@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.3.34 2014-01-14
+
+  * Bumped version to 0.3.34
+  * Fixed a bug with ES6 strict mode (can't set properties to a `false` value)
+
 ## v0.3.33 2014-09-04
 
   * Bumped version to 0.3.33
