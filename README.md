@@ -2,7 +2,9 @@
 
 ## DEPRECATION NOTICE
 
-This module is deprecated for production use. For SMTP servers use [smtp-server](https://github.com/andris9/smtp-server) or [Haraka](https://www.npmjs.org/package/Haraka), for SMTP clients use [smtp-connection](https://www.npmjs.org/package/smtp-connection).
+This module is deprecated. For SMTP servers use [smtp-server](https://github.com/andris9/smtp-server), for SMTP clients use [smtp-connection](https://www.npmjs.org/package/smtp-connection). Alternatively, for full featured SMTP server applications, you should use [Haraka](https://www.npmjs.org/package/Haraka).
+
+--------
 
 Simplesmtp is a module written for Node v0.6 and slightly updated for Node v0.8. It does not use Node v0.10 streams and probably is going to have a rocky future with Node v0.12. I do not have time to keep it up to date, the thing probably needs a major rewrite for Node v0.12.
 
@@ -21,11 +23,7 @@ If you are using node v0.6, then the last usable version of **simplesmtp** is v0
 
 Current version of simplesmtp is fully supported for Node v0.8+
 
-## Support simplesmtp development
-
-[![Donate to author](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=DB26KWR2BQX5W)
-
-## SMTP Server
+ˇ## SMTP Server
 
 ## Simple SMTP server
 
